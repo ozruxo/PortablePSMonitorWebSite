@@ -1,0 +1,18 @@
+@font-face{
+	font-family: jesayabk;
+	src: url(font/jesayabk.otf);
+}
+@font-face{
+	font-family: expressway;
+	src: url(font/expresswayrg.otf);
+}
+
+@font-face{
+	font-family: SometypeMono;
+	src: url(font/SometypeMono-Regular.ttf);
+}
+
+body {
+	font-family: expressway;
+  background-color: rgba(42, 49, 61, 1);
+}

@@ -12,26 +12,28 @@
     Specify device names where DNS works or IP address.
 
 .EXAMPLE
-    Set-SystemsBy -Devices '10.10.10.1','Spartans'
+    Set-PPSMWSystemsBy -Devices '10.10.10.1','Spartans'
 
 .EXAMPLE
-    Set-SystemsBy -DirectoryPath $env:USERPROFILE -Devices 'LittleMouse','192.168.1.1'
+    Set-PPSMWSystemsBy -DirectoryPath $RootDirectoryPath -Devices 'LittleMouse','192.168.1.1'
 
 .NOTES
     Any improvements welcome.
 #>
 
-function Get-SystemsBy {
+function Set-PPSMWSystemsBy {
 
     [CmdletBinding()]
     param(
-        [String]$DirectoryPath='C:\inetpub\wwwroot\dash\ReferenceData',
+        [String]$DirectoryPath,
         [String[]]$Devices
     )
 
     #region INITIAL VARIABLES
     
-        $FileName = 'Devices.json'
+        $ResourceDirectory = 'referenceData'
+        $FileName          = 'Devices.json'
+        $FullDirectoryPath = "$DirectoryPath\$ResourceDirectory\$FileName"
     
     #endregion
 
@@ -79,9 +81,10 @@ function Get-SystemsBy {
             Write-Verbose "Creating array for objects"
             $Write = $PrintToFile | ConvertTo-Json
             
+            Write-Verbose "Set Path: $FullDirectoryPath"
             Write-Verbose "Printing the following to file:"
             Write-Verbose `n$Write
-            $Write | Set-Content -Path "$DirectoryPath\$FileName"
+            $Write | Set-Content -Path "$FullDirectoryPath"
         }
 
     #endregion
