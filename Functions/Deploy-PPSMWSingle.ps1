@@ -57,6 +57,11 @@ function Deploy-PPSMWSingle {
             
                     #Write-host "0.1"
                     $PrintCache = $Collect | Select-Object -Unique
+
+                    if ($null -eq $CompareAgain){
+
+                        $CompareAgain = $PrintCache
+                    }
             
                     if (Compare-Object -ReferenceObject $CompareAgain -DifferenceObject $PrintCache -ErrorAction SilentlyContinue){
                     
