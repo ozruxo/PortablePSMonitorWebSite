@@ -26,18 +26,12 @@ function Get-PPSMWRemoteDataToFile {
     [CmdletBinding()]
     param(
         [Switch]$Access,
-        [String]$RootDirectory
+        [String]$ReferenceDataPath,
+        [String]$AllDeviceFileName,
+        [String]$PingFolderPath,
+        [String]$NoAccessFolderPath,
+        [String]$RootDirectoryPath
     )
-    
-    #region INITAL VARIABLES
-
-        $ResourceDirectory = 'referenceData'
-        $RootDataFolder    = "$RootDirectory\$ResourceDirectory"
-        $NoAccessFolder    = 'noAccess'
-        $PingOnlyFolder    = 'ping'
-        $AllDeviceFileName = 'Devices.json'
-
-    #endregion
 
     #region FUNCTIONS
 
@@ -318,7 +312,7 @@ function Get-PPSMWRemoteDataToFile {
 
     #region SCRIPT
 
-        $ImportDevices = Get-Content $RootDataFolder\$AllDeviceFileName
+        $ImportDevices = Get-Content "$ReferenceDataPath\$AllDeviceFileName"
         $Devices = $ImportDevices | ConvertFrom-Json
 
         foreach ($Device in $Devices){
@@ -357,7 +351,7 @@ function Get-PPSMWRemoteDataToFile {
                         PingOnly = 'No'
                     }
 
-                    Add-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$RootDataFolder\$NoAccessFolder\$DeviceString.json"
+                    Add-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
 
                 }
                 # Get Data from Jobs and sort files to the correct directory
@@ -373,7 +367,7 @@ function Get-PPSMWRemoteDataToFile {
                             Write-Verbose "Getting data from job"
                             $ReceivedJob = Receive-Job -InstanceId $Job.InstanceId
                             $ParseData = $ReceivedJob | ConvertFrom-Json
-                            Add-Content -Value $ReceivedJob -Path "$RootDataFolder\$($ParseData.DeviceType)\$($Job.Name).json"
+                            Add-Content -Value $ReceivedJob -Path "$ReferenceDataPath\$($ParseData.DeviceType)\$($Job.Name).json"
                         }
                         # Remove successful job
                         elseif ($Job.State -eq 'Completed' -and $Job.HasMoreData -eq $false){
@@ -395,7 +389,6 @@ function Get-PPSMWRemoteDataToFile {
                     }
                     Start-Sleep -Seconds 1
                 }until($Jobs.count -eq 0)
-
             }
             else{
 
@@ -411,7 +404,7 @@ function Get-PPSMWRemoteDataToFile {
                         PingOnly = 'Yes'
                     }
 
-                    Add-Content -Value ($AccessPing | ConvertTo-Json) -Path "$RootDataFolder\$PingOnlyFolder\$DeviceString.json"
+                    Add-Content -Value ($AccessPing | ConvertTo-Json) -Path "$PingFolderPath\$DeviceString.json"
                 }
 
                 if ($Available -eq $false){
@@ -423,7 +416,7 @@ function Get-PPSMWRemoteDataToFile {
                         PingOnly = 'Yes'
                     }
 
-                    Add-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$RootDataFolder\$NoAccessFolder\$DeviceString.json"
+                    Add-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
                 }
             }
         }

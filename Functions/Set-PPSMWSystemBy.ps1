@@ -5,17 +5,14 @@
 .DESCRIPTION
     Create file with IP's and/or device names needed for the PowerShell website.
 
-.PARAMETER DirectoryPath
-    Specify the path of the directory or leave as default. Default will be the directory structure created by IIS, plus the following sub-directories dash\ReferenceData.
+.PARAMETER ReferenceDataPath
+    Specify the path of the directory.
 
 .PARAMETER Devices
     Specify device names where DNS works or IP address.
 
 .EXAMPLE
-    Set-PPSMWSystemsBy -Devices '10.10.10.1','Spartans'
-
-.EXAMPLE
-    Set-PPSMWSystemsBy -DirectoryPath $RootDirectoryPath -Devices 'LittleMouse','192.168.1.1'
+    Set-PPSMWSystemsBy -ReferenceDataPath $ReferenceDataPath -Devices 'LittleMouse','192.168.1.1' -AllDevicesFileName "Devices.json"
 
 .NOTES
     Any improvements welcome.
@@ -25,15 +22,14 @@ function Set-PPSMWSystemsBy {
 
     [CmdletBinding()]
     param(
-        [String]$DirectoryPath,
-        [String[]]$Devices
+        [String]$ReferenceDataPath,
+        [String[]]$Devices,
+        [String]$AllDevicesFileName
     )
 
     #region INITIAL VARIABLES
-    
-        $ResourceDirectory = 'referenceData'
-        $FileName          = 'Devices.json'
-        $FullDirectoryPath = "$DirectoryPath\$ResourceDirectory\$FileName"
+
+        $FullDirectoryPath = "$ReferenceDataPath\$AllDevicesFileName"
     
     #endregion
 

@@ -30,7 +30,15 @@ function Set-PPSMWFolders {
     param(
         [String]$RootDirectoryPath,
         [Switch]$Force,
-        [String]$SourceFiles
+        [String]$SourceFiles,
+        [String]$IndividualWebFolderPath,
+        [String]$NoAccessFolderPath,
+        [String]$NonVMFolderPath,
+        [String]$PingFolderPath,
+        [String]$vHostFolderPath,
+        [String]$VMFolderPath,
+        [String]$RefMediaFolderPath,
+        [String]$RefTemplateFolderPath
     )
 
     #region SCRIPT
@@ -42,17 +50,16 @@ function Set-PPSMWFolders {
             New-Item -Path $RootDirectoryPath -ItemType Directory | Out-Null
 
             # Create sub directories
-            New-Item -Path "$RootDirectoryPath\pages\single" -ItemType Directory
-            New-Item -Path "$RootDirectoryPath\pages\virtualhosts" -ItemType Directory
-            New-Item -Path "$RootDirectoryPath\referenceData\nonVM" -ItemType Directory
-            New-Item -Path "$RootDirectoryPath\referenceData\vm" -ItemType Directory
-            New-Item -Path "$RootDirectoryPath\referenceData\vHost" -ItemType Directory
-            New-Item -Path "$RootDirectoryPath\referenceData\noAccess" -ItemType Directory
-            New-Item -Path "$RootDirectoryPath\referenceData\ping" -ItemType Directory
+            New-Item -Path $IndividualWebFolderPath -ItemType Directory
+            New-Item -Path $NoAccessFolderPath -ItemType Directory
+            New-Item -Path $vHostFolderPath -ItemType Directory
+            New-Item -Path $NonVMFolderPath -ItemType Directory
+            New-Item -Path $PingFolderPath -ItemType Directory
+            New-Item -Path $VMFolderPath -ItemType Directory
 
             # Copy files
-            Copy-Item -Path "$SourceFiles\Resources\Style" -Destination "$RootDirectoryPath" -Recurse -Force
-            Copy-Item -Path "$SourceFiles\Resources\template" -Destination "$RootDirectoryPath" -Recurse -Force
+            Copy-Item -Path "$SourceFiles\$RefMediaFolderPath" -Destination "$RootDirectoryPath" -Recurse -Force
+            Copy-Item -Path "$SourceFiles\$RefTemplateFolderPath" -Destination "$RootDirectoryPath" -Recurse -Force
         }
 
     #endregion
