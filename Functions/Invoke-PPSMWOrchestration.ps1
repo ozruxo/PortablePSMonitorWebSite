@@ -6,8 +6,8 @@
     Start and run the portable website.
 
 .PARAMETER RootDirectoryPath
-    Specify the root directory if the deault for IIS is not desired.
-
+    Specify the root directory.
+    
 .PARAMETER SourceFiles
     Specify the direcoty path of the downloaded files.
 
