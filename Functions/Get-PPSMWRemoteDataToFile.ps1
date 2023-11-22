@@ -285,8 +285,10 @@ function Get-PPSMWRemoteDataToFile {
                 # Make custom object
                 $PrintToFile = [PSCustomObject]@{
                 
+                    Name         = "$env:COMPUTERNAME"
                     DeviceType   = $DeviceType
                     PingOnly     = 'No'
+                    Status       = 'Online'
                     RAMGB        = $RAM
                     OSDiskPerc   = $OSDIsk
                     DataDiskInfo = $DataDisk
@@ -351,7 +353,7 @@ function Get-PPSMWRemoteDataToFile {
                         PingOnly = 'No'
                     }
 
-                    Add-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
+                    Set-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
 
                 }
                 # Get Data from Jobs and sort files to the correct directory
@@ -367,7 +369,7 @@ function Get-PPSMWRemoteDataToFile {
                             Write-Verbose "Getting data from job"
                             $ReceivedJob = Receive-Job -InstanceId $Job.InstanceId
                             $ParseData = $ReceivedJob | ConvertFrom-Json
-                            Add-Content -Value $ReceivedJob -Path "$ReferenceDataPath\$($ParseData.DeviceType)\$($Job.Name).json"
+                            Set-Content -Value $ReceivedJob -Path "$ReferenceDataPath\$($ParseData.DeviceType)\$($Job.Name).json"
                         }
                         # Remove successful job
                         elseif ($Job.State -eq 'Completed' -and $Job.HasMoreData -eq $false){
@@ -404,7 +406,7 @@ function Get-PPSMWRemoteDataToFile {
                         PingOnly = 'Yes'
                     }
 
-                    Add-Content -Value ($AccessPing | ConvertTo-Json) -Path "$PingFolderPath\$DeviceString.json"
+                    Set-Content -Value ($AccessPing | ConvertTo-Json) -Path "$PingFolderPath\$DeviceString.json"
                 }
 
                 if ($Available -eq $false){
@@ -416,7 +418,7 @@ function Get-PPSMWRemoteDataToFile {
                         PingOnly = 'Yes'
                     }
 
-                    Add-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
+                    Set-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
                 }
             }
         }

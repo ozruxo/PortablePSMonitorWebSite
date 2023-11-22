@@ -13,8 +13,8 @@ function Deploy-PPSMWvHostPage {
 
         $HTMLPagePath  = "$vHostDevicePagePath.html"
         $PrintPage     = [System.Collections.ArrayList]::New()
-        $TemplateStart = "$RootDirectoryPath\$TemplateFolderName\individStart.html"
-        $TemplateEnd   = "$RootDirectoryPath\$TemplateFolderName\individEnd.html"
+        $TemplateStart = "$RootDirectoryPath\$TemplateFolderName\vHostStart.html"
+        $TemplateEnd   = "$RootDirectoryPath\$TemplateFolderName\vHostEnd.html"
 
     #endregion
 
@@ -31,6 +31,8 @@ function Deploy-PPSMWvHostPage {
             $AllVMs           = [System.Collections.ArrayList]::New()
             $AllvHosts        = [System.Collections.ArrayList]::New()
             $PieceTogether    = [System.Collections.ArrayList]::New()
+            $IPsMatch         = [System.Collections.ArrayList]::New()
+            $IPsDontMatch     = [System.Collections.ArrayList]::New()
             $AllvHostFiles    = Get-ChildItem -Path $PathTofiles
             $OnlineImage      = 'azure-vms-icon-2048x1891.png'
             $OfflineImage     = 'x.png'
@@ -66,51 +68,75 @@ function Deploy-PPSMWvHostPage {
                 # Get List of IPs and try to find VM's that match
                 $vHostIps = $DeviceProperties.VMIPs
 
+                # Generate listings for Virtual machines
                 foreach ($IP in $vHostIps){
 
-                    $VMs = Get-ChildItem -Path $VMFolderPath
+                    $VMs = Get-ChildItem -Path $PathToVMs
                     foreach ($VM in $VMs){
 
                         $VMContent = Get-Content -Path $VM.FullName | ConvertFrom-Json
 
                         if ($VMContent.NetworkInfo.IPAddress -match $IP){
 
-                            if ([int]$VMContent.OSDiskPerc -ge 15){
-
-                                $DiskStatus = 'gooddisk'
-                            }
-                            else {
-
-                                $DiskStatus = 'baddisk'
-                            }
-
-                            # Array for VMs
-                            $VMCustomObject = [PSCustomObject]@{
-                                Name       = (($VM.FullName -split "\\")[-1]).split('.')[0]
-                                Status     = 'online'
-                                DiskPerc   = $VMContent.OSDiskPerc
-                                Usercount  = $VMContent.UserCount
-                                Access     = 'access'
-                                DiskStatus = $DiskStatus
-                                vHost      = $vHostName
-                            }
-                            $AllVMs.Add($VMCustomObject) | Out-Null
+                            $IPsMatch.Add($VMContent) | Out-Null
                         }
-                        else {
-
-                            # If Additional IP's don't match
-                            $VMCustomObject = [PSCustomObject]@{
-                                Name       = $IP
-                                Status     = 'offline'
-                                DiskPerc   = 'N/A'
-                                Usercount  = 'N/A'
-                                Access     = 'noaccess'
-                                DiskStatus = 'baddisk'
-                                vHost      = $vHostName
-                            }
-                            $AllVMs.Add($VMCustomObject) | Out-Null
+                        else{
+                            
+                            $IPsDontMatch.Add($IP) | Out-Null
                         }
                     }
+                }
+
+                # Clean up listing for virtual machines
+                [System.Collections.ArrayList]$DontMatchListing = $IPsDontMatch | Select-Object -Unique
+                :one foreach ($IPM in $IPsMatch){
+                
+                    foreach($DontML in $DontMatchListing){
+
+                        if ($IPM.NetworkInfo.IPAddress -eq $DontML){
+
+                            $DontMatchListing.Remove("$($IPM.NetworkInfo.IPAddress)") | Out-Null
+                            break :one
+                        }
+                    }
+                }
+
+                # Create list of VMs to print
+                foreach ($IPM in $IPsMatch){
+
+                    if ([int]$IPM.OSDiskPerc -ge 15){
+
+                        $DiskStatus = 'gooddisk'
+                    }
+                    else {
+
+                        $DiskStatus = 'baddisk'
+                    }
+
+                    $VMCustomObject = [PSCustomObject]@{
+                        Name       = $IPM.Name
+                        Status     = 'online'
+                        DiskPerc   = $IPM.OSDiskPerc
+                        Usercount  = $IPM.UserCount
+                        Access     = 'access'
+                        DiskStatus = $DiskStatus
+                        vHost      = $vHostName
+                    }
+                    $AllVMs.Add($VMCustomObject) | Out-Null
+                }
+                foreach ($DML in $DontMatchListing){
+                    
+                    # If Additional IP's don't match
+                    $VMCustomObject = [PSCustomObject]@{
+                        Name       = $IP
+                        Status     = 'offline'
+                        DiskPerc   = 'N/A'
+                        Usercount  = 'N/A'
+                        Access     = 'noaccess'
+                        DiskStatus = 'baddisk'
+                        vHost      = $vHostName
+                    }
+                    $AllVMs.Add($VMCustomObject) | Out-Null
                 }
             }
 
@@ -129,13 +155,13 @@ function Deploy-PPSMWvHostPage {
                             <div class="hstatusindicator $($AvH.Access)"></div>
                             <div class="hstatusindicator $($AvH.DiskStatus)"></div>
                         </div>
-                        <div class="HName">$($AvH.Name)</div>
+                        <div class="HName"><a class="hostLink" href="individual/$($AvH.Name).html">$($AvH.Name)</a></div>
                         <img class="image" tabindex="1" src="../style/images/server_$($AvH.Color).svg">
                         <div class="Hinfo">
                             <div>OS Disk available: $($AvH.DiskPerc)%</div>
                             <div>RAM available : $($AvH.RAMGB)GB</div>
 "@
-                $PieceTogether.Add($vHostStart)
+                $PieceTogether.Add($vHostStart) | Out-Null
 
                 # foreach vHost data disks
                 foreach ($vDD in $AvH.Data){
@@ -157,9 +183,9 @@ function Deploy-PPSMWvHostPage {
                 $PieceTogether.Add($PrintMidSection01) | Out-Null
 
                 # foreach vm
-                foreach ($VM in $AllVMs){
+                foreach ($AVM in $AllVMs){
 
-                    if ($VM.Status -eq 'online'){
+                    if ($AVM.Status -eq 'online'){
                         
                         $Image = $OnlineImage
                     }
@@ -167,26 +193,40 @@ function Deploy-PPSMWvHostPage {
                         
                         $Image = $OfflineImage
                     }
-                    if ($VM.vHost -eq $AvH.Name){
+                    if ($AVM.vHost -eq $AvH.Name){
 
-                        $vHostVM = @"
+                        $vHostVM01 = @"
                     <div class="vmobject">
                         <div class="statusbar">
-                            <div class="statusindicator $($VM.Status)"></div>
-                            <div class="statusindicator $($VM.Access)"></div>
-                            <div class="statusindicator $($VM.DiskStatus)"></div>
+                            <div class="statusindicator $($AVM.Status)"></div>
+                            <div class="statusindicator $($AVM.Access)"></div>
+                            <div class="statusindicator $($AVM.DiskStatus)"></div>
                         </div>
-                        <div class="VName">$($VM.Name)</div>
+"@
+                        $PieceTogether.Add($vHostVM01) | Out-Null
+                        if ($AVM.Status -eq 'offline'){
+                        
+                            $vHostVM02 = @"
+                        <div class="VName"><a class="vmLink" href="error/404.html">$($AVM.Name)</a></div>
+"@
+                        }
+                        else{
+
+                            $vHostVM02 = @"
+                        <div class="VName"><a class="vmLink" href="individual/$($AVM.Name).html">$($AVM.Name)</a></div>
+"@
+                        }
+                        $PieceTogether.Add($vHostVM02) | Out-Null
+                        $vHostVM03 = @"
                         <img class="vimage" tabindex="1" src="../style/images/$Image">
                         <div class="info">
-                            <div>OS Disk available: $($VM.DiskPerc)%</div>
-                            <div>Users on VM : $($VM.UserCount)</div>
+                            <div>OS Disk available: $($AVM.DiskPerc)%</div>
+                            <div>Users on VM : $($AVM.UserCount)</div>
                         </div>
                     </div>
 "@
+                        $PieceTogether.Add($vHostVM03) | Out-Null
                     }
-
-                    $PieceTogether.Add($vHostVM) | Out-Null
                 }
 
                 $PrintMidSection02 = @"

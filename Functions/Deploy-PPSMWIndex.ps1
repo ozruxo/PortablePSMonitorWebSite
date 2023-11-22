@@ -27,7 +27,8 @@ function Deploy-PPSMWIndex {
         function Set-IndexHTML {
 
             param(
-                [Array]$Device
+                [Array]$Device,
+                [Switch]$Permission
             )
 
             $DeviceName = $Device.Name
@@ -44,12 +45,24 @@ function Deploy-PPSMWIndex {
                 $Message     = 'Not Pingable'
             }
 
-            $Print = @"
+            if ($Permission){
+                
+                $Print = @"
+        <div class="deviceObject device$DeviceColor">
+            <div class="deviceName"><a class="deviceLink" href="pages/individual/$($DeviceName).html">$($DeviceName.ToLower())</a></div>
+            <div class="hide">$Message</div>
+        </div>
+"@
+            }
+            else{
+
+                $Print = @"
         <div class="deviceObject device$DeviceColor">
             <div class="deviceName">$DeviceName</div>
             <div class="hide">$Message</div>
         </div>
-"@
+"@   
+            }
             return $Print
         }
 
@@ -79,7 +92,7 @@ function Deploy-PPSMWIndex {
             
             foreach ($Device in $Devices){
             
-                $PrintPage.Add((Set-IndexHTML -Device $Device)) | Out-Null
+                $PrintPage.Add((Set-IndexHTML -Permission -Device (Get-Content $Device.FullName | ConvertFrom-Json))) | Out-Null
             }
 
             $PrintPage.Add((Get-Content $TemplateEnd)) | Out-Null

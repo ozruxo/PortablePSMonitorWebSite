@@ -39,11 +39,13 @@ function Build-PPSMWSitePages {
             -IndividualDevicePagePath $IndividualDevicePagePath
 
             # Deploy individual pages for more detailed pages
+            Write-Verbose "Checking for non vm files to set individual page"
             $FilesFromNonVMDir = Get-ChildItem -Path $NonVMFolderPath
             if ($FilesFromNonVMDir.Count -gt 0){
 
                 foreach ($NonVM in $FilesFromNonVMDir) {
 
+                    Write-Verbose "Setting non vm individual page"
                     Start-Job -Name $NonVM.Name -ArgumentList $NonVM.FullName,$IndividualWebFolderPath,$RootDirectoryPath,$TemplateFolderName -ScriptBlock {
                 
                         $PathToFile              = $args[0]
@@ -51,20 +53,27 @@ function Build-PPSMWSitePages {
                         $RootDirectoryPath       = $args[2]
                         $TemplateFolderName      = $args[3]
 
-                        Deploy-PPSMWIndividaulPage `
+                        Deploy-PPSMWIndividualPage `
                         -PathToFile $PathToFile `
                         -IndividualWebFolderPath $IndividualWebFolderPath `
                         -RootDirectoryPath $RootDirectoryPath `
                         -TemplateFolderName $TemplateFolderName
-                    }
+                    } | Out-Null
                 }
+            }
+            else{
+
+                Write-Verbose "No non vm files for individual page"
             }
 
             # Deploy vhost page if applicable
+            Write-Verbose "Checking for vhost files to set individual page"
             $FilesFromvHostDir = Get-ChildItem -Path $vHostFolderPath
             if ($FilesFromvHostDir.Count -gt 0){
 
                 foreach ($vHost in $FilesFromvHostDir){
+
+                    Write-Verbose "Setting vhost individual page"
 
                     Start-Job -Name $vHost.Name -ArgumentList $vHost.FullName,$IndividualWebFolderPath,$RootDirectoryPath,$TemplateFolderName -ScriptBlock {
 
@@ -73,13 +82,15 @@ function Build-PPSMWSitePages {
                         $RootDirectoryPath       = $args[2]
                         $TemplateFolderName      = $args[3]
 
-                        Deploy-PPSMWIndividaulPage `
+                        Deploy-PPSMWIndividualPage `
                         -PathToFile $PathToFile `
                         -IndividualWebFolderPath $IndividualWebFolderPath `
                         -RootDirectoryPath $RootDirectoryPath `
                         -TemplateFolderName $TemplateFolderName
-                    }
+                    } | Out-Null
                 }
+                
+                Write-Verbose "Setting vhost host page"
                 Deploy-PPSMWvHostPage `
                 -PathToFiles $vHostFolderPath `
                 -vHostDevicePagePath $vHostDevicePagePath `
@@ -87,26 +98,32 @@ function Build-PPSMWSitePages {
                 -TemplateFolderName $TemplateFolderName `
                 -VMFolderPath $VMFolderPath
             }
+            else {
+
+                Write-Verbose "No vhost files for individual page"
+            }
 
             # Deploy individual pages for more detailed pages
+            Write-Verbose "Checking for vm files to set individual page"
             $FilesFromvmDir = Get-ChildItem -Path $VMFolderPath
             if ($FilesFromvmDir.Count -gt 0){
 
                 foreach ($VM in $FilesFromvmDir){
 
-                    Start-Job -Name $VM.Name -ArgumentList $NonVM.FullName,$IndividualWebFolderPath,$RootDirectoryPath,$TemplateFolderName -ScriptBlock {
+                    Write-Verbose "Setting vm individaul page"
+                    Start-Job -Name $VM.Name -ArgumentList $VM.FullName,$IndividualWebFolderPath,$RootDirectoryPath,$TemplateFolderName -ScriptBlock {
 
                         $PathToFile              = $args[0]
                         $IndividualWebFolderPath = $args[1]
                         $RootDirectoryPath       = $args[2]
                         $TemplateFolderName      = $args[3]
 
-                        Deploy-PPSMWIndividaulPage `
+                        Deploy-PPSMWIndividualPage `
                         -PathToFile $PathToFile `
                         -IndividualWebFolderPath $IndividualWebFolderPath `
                         -RootDirectoryPath $RootDirectoryPath `
                         -TemplateFolderName $TemplateFolderName
-                    }
+                    } | Out-Null
                 }
             }
         }
@@ -141,6 +158,7 @@ function Build-PPSMWSitePages {
                 if ($Job.State -eq 'Completed'){
                 
                     Write-Verbose "Job Completed. Removing"
+                    Receive-Job -InstanceId $Job.InstanceId
                     Remove-Job -InstanceId $Job.InstanceId
                 }
                 # Remove failed job

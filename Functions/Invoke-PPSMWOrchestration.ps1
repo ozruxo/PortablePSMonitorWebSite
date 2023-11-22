@@ -6,8 +6,8 @@
     Start and run the portable website.
 
 .PARAMETER RootDirectoryPath
-    Specify the root directory.
-    
+    Specify the root directory if the deault for IIS is not desired.
+
 .PARAMETER SourceFiles
     Specify the direcoty path of the downloaded files.
 
@@ -78,6 +78,7 @@ function Invoke-PPSMWOrchestration {
         $VMFolder                   = 'vm'
         $AllDevicesFileName         = 'Devices.json'
         $IndexFileName              = 'index'
+        $ErrorFolderName            = 'error'
 
         # Less easy variables to change
         $MediaFolderName            = 'style'
@@ -85,6 +86,7 @@ function Invoke-PPSMWOrchestration {
         $IndividualWebFolderPath    = "$RootDirectoryPath\pages\$IndividualDevicePageFolder"
         $IndividualDevicePagePath   = "$RootDirectoryPath\pages\$IndividualDevicePageName"
         $vHostDevicePagePath        = "$rootDirectoryPath\pages\$vHostDevicePageName"
+        $ErrorFolderPath            = "$rootDirectoryPath\pages\$ErrorFolderName"
         $ReferenceDataPath          = "$RootDirectoryPath\$DataFilesDir"
         $NoAccessFolderPath         = "$ReferenceDataPath\$NoAccessFolder"
         $NonVMFolderPath            = "$ReferenceDataPath\$NonVMFolder"
@@ -126,6 +128,7 @@ function Invoke-PPSMWOrchestration {
             -VMFolderPath $VMFolderPath `
             -RefMediaFolderPath $RefMediaFolderPath `
             -RefTemplateFolderPath $RefTemplateFolderPath `
+            -ErrorFolderPath $ErrorFolderPath `
             -Force
         }
         else{
@@ -141,6 +144,7 @@ function Invoke-PPSMWOrchestration {
             -vHostFolderPath $vHostFolderPath `
             -VMFolderPath $VMFolderPath `
             -RefMediaFolderPath $RefMediaFolderPath `
+            -ErrorFolderPath $ErrorFolderPath `
             -RefTemplateFolderPath $RefTemplateFolderPath `
         }
 

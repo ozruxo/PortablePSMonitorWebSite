@@ -1,4 +1,4 @@
-function Deploy-PPSMWIndividaulPage {
+function Deploy-PPSMWIndividualPage {
 
     [CmdletBinding()]
     param(
@@ -82,7 +82,7 @@ function Deploy-PPSMWIndividaulPage {
             foreach ($DD in $DeviceProperties.DataDiskInfo){
             
                 $PrintInternalDD01 = @"
-<div class="termPH"> DataDisk: $($DD.DiskLetter) </div>
+            <div class="termPH"> DataDisk: $($DD.DiskLetter) </div>
 "@
                 $PrintDD01.Add($PrintInternalDD01) | Out-Null
             }
@@ -90,7 +90,7 @@ function Deploy-PPSMWIndividaulPage {
             foreach ($DD in $DeviceProperties.DataDiskInfo){
             
                 $PrintInternalDD02 = @"
-<div class="termPH"> ------------ </div>
+            <div class="termPH"> ------------ </div>
 "@
                 $PrintDD02.Add($PrintInternalDD02) | Out-Null
             }
@@ -99,7 +99,7 @@ function Deploy-PPSMWIndividaulPage {
             foreach ($DD in $DeviceProperties.DataDiskInfo){
             
                 $PrintInternalDD03 = @"
-<div> $($DD.DiskPerc)% $Spaces </div>
+            <div> $($DD.DiskPerc)% $Spaces </div>
 "@
                 $PrintDD03.Add($PrintInternalDD03) | Out-Null
             }
@@ -131,13 +131,13 @@ $PrintDD03
             $Spaces = Get-Spacing -MaxLength (($DeviceProperties.OSInfo.Caption).Length - 1)  -MinLength 10
             #-----Version-----#
             $InnerOSPrint01 = @"
-<div class="termPH"> OS Version $Spaces </div>
+            <div class="termPH"> OS Version $Spaces </div>
 "@
             $InnerOSPrint05 = @"
-<div class="termPH"> ---------- $Spaces </div>
+            <div class="termPH"> ---------- $Spaces </div>
 "@
             $InnerOSPrint09 = @"
-<div> $($DeviceProperties.OSInfo.Caption) </div>
+            <div> $($DeviceProperties.OSInfo.Caption) </div>
 "@
             #-----------------#
             #---BuildNumber---#

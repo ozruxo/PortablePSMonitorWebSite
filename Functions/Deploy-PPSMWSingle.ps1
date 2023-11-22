@@ -38,12 +38,10 @@ function Deploy-PPSMWSingle {
                 
                 if ($Device -match "^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$"){
     
-                    #Write-host "ip0"
                     $FirstPortion = $Device.split('.')[0..2] -join '.'
                 }
                 else{
                 
-                    #Write-host "n0"
                     $FirstPortion = $Device.Substring(0,1)
                 }
             
@@ -55,14 +53,14 @@ function Deploy-PPSMWSingle {
             
                 if($Compare -ne $FirstPortion){
             
-                    #Write-host "0.1"
                     $PrintCache = $Collect | Select-Object -Unique
 
                     if ($null -eq $CompareAgain){
 
-                        $CompareAgain = $PrintCache
+                        # I need the first CompareAgain to not match in order to print correctly
+                        $CompareAgain = 'FirstObject'
                     }
-            
+                    
                     if (Compare-Object -ReferenceObject $CompareAgain -DifferenceObject $PrintCache -ErrorAction SilentlyContinue){
                     
                         # Reset variable
@@ -89,7 +87,10 @@ function Deploy-PPSMWSingle {
 "@
 
                         $PieceTogether.Add($Print1) | Out-Null
-                        $PieceTogether.Add([String]$PrintTwo) | Out-Null
+                        foreach ($PTwo in $PrintTwo){
+                        
+                            $PieceTogether.Add($PTwo) | Out-Null
+                        }
                         $PieceTogether.Add($Print3) | Out-Null
                         $Collect = [System.Collections.ArrayList]::New()
                     }
@@ -100,21 +101,17 @@ function Deploy-PPSMWSingle {
             
                 foreach ($Device2 in $Devices){
                     
-                    #write-host "1"
                     if ($Device2 -match "^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$"){
                 
-                        #Write-host "1.1"
                         $SecondPortion = $Device2.split('.')[0..2] -join '.'
                     }
                     else{
                 
-                        #Write-Host "1.2"
                         $SecondPortion = $Device2.Substring(0,1)
                     }
             
                     if ($SecondPortion -eq $FirstPortion){
                     
-                        #Write-host "1.3"
                         $Collect.Add($Device2) | Out-Null
                         $Compare = $SecondPortion
                     }
@@ -146,7 +143,10 @@ function Deploy-PPSMWSingle {
 "@
 
             $PieceTogether.Add($Print1) | Out-Null
-            $PieceTogether.Add([String]$PrintTwo) | Out-Null
+            foreach ($PTwo in $PrintTwo){
+
+                $PieceTogether.Add($PTwo) | Out-Null
+            }
             $PieceTogether.Add($Print3) | Out-Null
 
             return $PieceTogether

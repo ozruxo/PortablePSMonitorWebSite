@@ -38,7 +38,8 @@ function Set-PPSMWFolders {
         [String]$vHostFolderPath,
         [String]$VMFolderPath,
         [String]$RefMediaFolderPath,
-        [String]$RefTemplateFolderPath
+        [String]$RefTemplateFolderPath,
+        [String]$ErrorFolderPath
     )
 
     #region SCRIPT
@@ -54,12 +55,16 @@ function Set-PPSMWFolders {
             New-Item -Path $NoAccessFolderPath -ItemType Directory
             New-Item -Path $vHostFolderPath -ItemType Directory
             New-Item -Path $NonVMFolderPath -ItemType Directory
+            New-Item -Path $ErrorFolderPath -ItemType Directory
             New-Item -Path $PingFolderPath -ItemType Directory
             New-Item -Path $VMFolderPath -ItemType Directory
 
             # Copy files
             Copy-Item -Path "$SourceFiles\$RefMediaFolderPath" -Destination "$RootDirectoryPath" -Recurse -Force
             Copy-Item -Path "$SourceFiles\$RefTemplateFolderPath" -Destination "$RootDirectoryPath" -Recurse -Force
+
+            # Move file
+            Move-Item -Path "$RootDirectoryPath\template\404.html" -Destination "$ErrorFolderPath"
         }
 
     #endregion

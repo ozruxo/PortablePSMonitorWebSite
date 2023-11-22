@@ -30,7 +30,7 @@ H1 {
 	font-family: jesayabk;
 }
 
-.vmLink {
+.vmLink, .hostLink {
 	color: rgba(42, 49, 61, 1);
 	text-decoration: none;
 }
