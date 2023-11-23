@@ -1,4 +1,4 @@
-$ModulePath = "C:\Users\v-goanth\Documents\WindowsPowerShell\Modules\PortablePSMonitorWebSite"
+$ModulePath = "$env:USERPROFILE\Documents\WindowsPowerShell\Modules\PortablePSMonitorWebSite"
 #$ModulePath = "C:\Program Files\WindowsPowerShell\Modules\PortablePSMonitorWebSite"
 
 $FunctionModules = Get-ChildItem -Path "$ModulePath\Functions\*.ps1"
