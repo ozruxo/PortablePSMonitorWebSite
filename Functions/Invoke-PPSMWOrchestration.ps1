@@ -17,7 +17,7 @@
 .PARAMETER Devices
     Specify the devices you would like to monitor.
 
-.PARAMETER Permissions
+.PARAMETER Permission
     Specify if you have permissions to the remote systems. Permission will allow for getting more detailed information.
 
 .PARAMETER Continuous
@@ -25,6 +25,9 @@
 
 .PARAMETER Minutes
     Specify the frequency of the udpates. Default is 5 minutes. Other set options are: 10,15,20,30,45,60.
+
+.PARAMETER StopAfter
+    Specify how many loops until complete.
 
 .EXAMPLE
     Invoke-PPSMWOrchestration `
@@ -44,6 +47,9 @@
 
 .NOTES
     Any improvements welcome.
+
+.FUNCTIONALITY
+    PPSMW build web site
 #>
 
 function Invoke-PPSMWOrchestration {
@@ -116,7 +122,7 @@ function Invoke-PPSMWOrchestration {
         # Create folder structure, copy css and template files
         if ($ForceFolderCreation){
     
-            Write-Verbose "Force creating directories"
+            Write-Output "Force creating directories"
             Set-PPSMWFolders `
             -RootDirectoryPath $RootDirectoryPath `
             -SourceFiles $SourceFiles `
@@ -133,23 +139,31 @@ function Invoke-PPSMWOrchestration {
         }
         else{
     
-            Write-Verbose "Creating directories"
-            Set-PPSMWFolders `
-            -RootDirectoryPath $RootDirectoryPath `
-            -SourceFiles $SourceFiles `
-            -IndividualWebFolderPath $IndividualWebFolderPath `
-            -NoAccessFolderPath $NoAccessFolderPath `
-            -NonVMFolderPath $NonVMFolderPath `
-            -PingFolderPath $PingFolderPath `
-            -vHostFolderPath $vHostFolderPath `
-            -VMFolderPath $VMFolderPath `
-            -RefMediaFolderPath $RefMediaFolderPath `
-            -ErrorFolderPath $ErrorFolderPath `
-            -RefTemplateFolderPath $RefTemplateFolderPath `
+            if (-not (Test-Path $ReferenceDataPath)){
+                
+                Write-Output "Creating directories"
+                Set-PPSMWFolders `
+                -RootDirectoryPath $RootDirectoryPath `
+                -SourceFiles $SourceFiles `
+                -IndividualWebFolderPath $IndividualWebFolderPath `
+                -NoAccessFolderPath $NoAccessFolderPath `
+                -NonVMFolderPath $NonVMFolderPath `
+                -PingFolderPath $PingFolderPath `
+                -vHostFolderPath $vHostFolderPath `
+                -VMFolderPath $VMFolderPath `
+                -RefMediaFolderPath $RefMediaFolderPath `
+                -ErrorFolderPath $ErrorFolderPath `
+                -RefTemplateFolderPath $RefTemplateFolderPath `
+            }
+            else{
+
+                $FreashStart = Get-ChildItem $ReferenceDataPath -Depth 1 | Where-Object {$PSItem.Name -match '.json'}
+                Remove-Item $FreashStart.FullName -Force -Recurse
+            }
         }
 
         # Set reference file for all devices to check
-        Write-Verbose "Writing reference file for all devices"
+        Write-Output "Writing reference file for all devices"
         Set-PPSMWSystemsBy `
         -Devices $Devices `
         -ReferenceDataPath $ReferenceDataPath `
@@ -164,7 +178,7 @@ function Invoke-PPSMWOrchestration {
                 Write-Verbose "Parameter continuous selected"
                 do{
 
-                    Write-Verbose "Getting remote data"
+                    Write-Output "Getting remote data...This might take a while"
                     Get-PPSMWRemoteDataToFile `
                     -Access `
                     -ReferenceDataPath $ReferenceDataPath `
@@ -186,7 +200,7 @@ function Invoke-PPSMWOrchestration {
                     # Only contiue if files exist
                     if (((Get-ChildItem $NonVMFolderPath).Count + (Get-ChildItem $vHostFolderPath).Count + (Get-ChildItem $VMFolderPath).Count) -gt 0){
 
-                        Write-Verbose "Refernce data found for webpages"
+                        Write-Host "Writing from reference data"
                         Build-PPSMWSitePages `
                         -Access `
                         -RootDirectoryPath $RootDirectoryPath `
@@ -221,7 +235,7 @@ function Invoke-PPSMWOrchestration {
             }
             else{
             
-                Write-Verbose "Getting remote data"
+                Write-Output "Getting remote data...This might take a while"
                 Get-PPSMWRemoteDataToFile `
                     -Access `
                     -ReferenceDataPath $ReferenceDataPath `
@@ -243,7 +257,7 @@ function Invoke-PPSMWOrchestration {
                 # Only contiue if files exist
                 if (((Get-ChildItem $NonVMFolderPath).Count + (Get-ChildItem $vHostFolderPath).Count + (Get-ChildItem $VMFolderPath).Count) -gt 0){
 
-                    Write-Verbose "Refernce data found for webpages"
+                    Write-Host "Writing from reference data"
                     Build-PPSMWSitePages `
                     -Access `
                     -RootDirectoryPath $RootDirectoryPath `
@@ -272,7 +286,7 @@ function Invoke-PPSMWOrchestration {
             
                 do{
 
-                    Write-Verbose "Getting remote data"
+                    Write-Output "Getting remote data...This might take a while"
                     Get-PPSMWRemoteDataToFile `
                     -ReferenceDataPath $ReferenceDataPath `
                     -AllDeviceFileName $AllDevicesFileName `
@@ -293,7 +307,7 @@ function Invoke-PPSMWOrchestration {
                     # Only contiue if files exist
                     if ((Get-ChildItem $PingFolderPath).Count -gt 0){
 
-                        Write-Verbose "Refernce data found for webpages"
+                        Write-Host "Writing from reference data"
                         Build-PPSMWSitePages `
                         -RootDirectoryPath $RootDirectoryPath `
                         -ReferenceDataPath $ReferenceDataPath `
@@ -324,7 +338,7 @@ function Invoke-PPSMWOrchestration {
             }
             else {
             
-                Write-Verbose "Getting remote data"
+                Write-Output "Getting remote data...This might take a while"
                 Get-PPSMWRemoteDataToFile `
                 -ReferenceDataPath $ReferenceDataPath `
                 -AllDeviceFileName $AllDevicesFileName `
@@ -345,7 +359,7 @@ function Invoke-PPSMWOrchestration {
                 # Only contiue if files exist
                 if ((Get-ChildItem $PingFolderPath).Count -gt 0){
 
-                    Write-Verbose "Refernce data found for webpages"
+                    Write-Host "Writing from reference data"
                     Build-PPSMWSitePages `
                     -RootDirectoryPath $RootDirectoryPath `
                     -ReferenceDataPath $ReferenceDataPath `

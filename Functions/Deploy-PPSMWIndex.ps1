@@ -1,13 +1,71 @@
+<#
+.SYNOPSIS
+    Build the index (home) HTML page.
+
+.DESCRIPTION
+    Build the index (home) HTML page.
+
+.PARAMETER RootDirectoryPath
+    Specify the root directory for the website.
+
+.PARAMETER PingOnly
+    Specify the devices will only be monitored with ping.
+
+.PARAMETER PingFolderPath
+    Specify the ping directory path.
+
+.PARAMETER NonVMFolderPath
+    Specify the directory path for the non virtual machine devices.
+
+.PARAMETER vHostFolderPath
+    Specify the directory path for the virtual host devices.
+
+.PARAMETER VMFolderPath
+    Specify the directory path for the virtual machine devices.
+
+.PARAMETER TemplateFolderName
+    Specify the template folder name.
+
+.PARAMETER IndexFileName
+    Specify the index (home) HTML page name. If this changes you will have to update the HTML.
+
+.EXAMPLE
+    Deploy-PPSMWIndex `
+    -RootDirectoryPath $RootDirectoryPath `
+    -NonVMFolderPath $NonVMFolderPath `
+    -vHostFolderPath $vHostFolderPath `
+    -VMFolderPAth $VMFolderPath `
+    -TemplateFolderPath $TemplateFolderPath `
+    -IndexFileName $IndexFileName
+
+.EXAMPLE
+    Deploy-PPSMWIndex `
+    -RootDirectoryPath $RootDirectoryPath `
+    -PingOnly `
+    -PingFolderPath $PingFolderPath `
+    -TemplateFolderPath $TemplateFolderPath `
+    -IndexFileName $IndexFileName
+
+.NOTES
+    Any improvements welcome.
+
+.FUNCTIONALITY
+    PPSMW build web site
+#>
+
 function Deploy-PPSMWIndex {
 
     param(
+        [Parameter(mandatory=$true)]
         [String]$RootDirectoryPath,
         [Switch]$PingOnly,
         [String]$PingFolderPath,
         [String]$NonVMFolderPath,
         [String]$vHostFolderPath,
         [String]$VMFolderPath,
+        [Parameter(mandatory=$true)]
         [String]$TemplateFolderName,
+        [Parameter(mandatory=$true)]
         [String]$IndexFileName
     )
 

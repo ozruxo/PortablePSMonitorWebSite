@@ -11,19 +11,28 @@
 .PARAMETER Devices
     Specify device names where DNS works or IP address.
 
+.PARAMETER AllDevicesFileName
+    Specify the name of the file name for the file with all the devices listed.
+
 .EXAMPLE
     Set-PPSMWSystemsBy -ReferenceDataPath $ReferenceDataPath -Devices 'LittleMouse','192.168.1.1' -AllDevicesFileName "Devices.json"
 
 .NOTES
     Any improvements welcome.
+
+.FUNCTIONALITY
+    PPSMW build web site
 #>
 
 function Set-PPSMWSystemsBy {
 
     [CmdletBinding()]
     param(
+        [Parameter(mandatory=$true)]
         [String]$ReferenceDataPath,
+        [Parameter(mandatory=$true)]
         [String[]]$Devices,
+        [Parameter(mandatory=$true)]
         [String]$AllDevicesFileName
     )
 

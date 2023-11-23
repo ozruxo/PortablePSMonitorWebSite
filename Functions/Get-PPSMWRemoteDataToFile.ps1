@@ -5,20 +5,38 @@
 .DESCRIPTION
     Create files that correlate to the devices you would like to monitor. This files will contain data pertaining to each device and will be used to populate the website.
 
+.PARAMETER Access
+    Specify access is available with network domain credentials.
+
+.PARAMETER ReferenceDataPath
+    Specify directory path for list of all devices and for storing JSON files.
+
+.PARAMETER AllDeviceFileName
+    Specify the name of the files with all the devices listed.
+
+.PARAMETER PingFolderPath
+    Specify the directory path for the ping folder.
+
+.PARAMETER NoAccessFolderPath
+    Specify the directory path for systems that could not be accessed.
+
 .PARAMETER RootDirectory
     Specify the path of the files that stores the information on what computers to monitor. The actual file will be written by this script.
 
-.PARAMETER Access
-    Specify whether access is available or not with $true or $false.
-
 .EXAMPLE
-    Get-RemoteDataToFile -DeviceFilePath $RootDirecotry\$DevicesFilePath -Access $true
-
-.EXAMPLE
-    Get-RemoteDataToFile -DeviceFilePath $RootDirecotry\$DevicesFilePath -Access $true -Continuous -Frequency 5
+    Get-RemoteDataToFile `
+    -Access `
+    -ReferenceDataPath $ReferenceDataPath `
+    -AllDeviceFilename $AllDeviceFileName `
+    -PingFolderPath $PingFolderPath `
+    -NoAccessFolderPath $NoAccessFolderPath `
+    -RootDirectoryPath $RootDirectoryPath
 
 .NOTES
     Any improvements welcome.
+
+.FUNCTIONALITY
+    PPSMW build web site
 #>
 
 function Get-PPSMWRemoteDataToFile {
@@ -32,6 +50,13 @@ function Get-PPSMWRemoteDataToFile {
         [String]$NoAccessFolderPath,
         [String]$RootDirectoryPath
     )
+
+    #region INITIAL VARIABLES
+
+        $Progress = "(•_•)     ","(•_•)     ","(•_•)     ","(•_•)     ","(•_•)     ","(•_•)     ","(•_•)     ","(•_•)     ","( •_•)>⌐■-■","( •_•)>⌐■-■","(⌐■_■)     ","(⌐■_■)     ","(⌐■_■)     ","(⌐■_■)     "
+        $i = 0
+
+    #endregion
 
     #region FUNCTIONS
 
@@ -125,6 +150,7 @@ function Get-PPSMWRemoteDataToFile {
             
                             continue
                         }
+                        # This is not accounting for remote session such as powershell
                         elseif($Line -match 'Console'){
             
                             continue
@@ -180,9 +206,10 @@ function Get-PPSMWRemoteDataToFile {
                             NumberOfCores        = $CP.NumberOfCores
                             NumberOfLogicalCores = $CP.NumberOfLogicalProcessors
                         }
-                        $CPUInfo.Add($CustomObject)
-                        return $CPUInfo
+                        $CPUInfo.Add($CustomObject) | Out-Null
                     }
+
+                    return $CPUInfo
                 }
 
                 function Get-OSInfo {
@@ -213,11 +240,7 @@ function Get-PPSMWRemoteDataToFile {
                         
                                 if ($IP -match "^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$"){
                             
-                                    $SaveIP.Add($IP)
-                                }
-                                if ([String]::IsNullOrEmpty($IP)) {
-                                
-                                    $SaveIP.Add(0) | Out-Null
+                                    $SaveIP.Add($IP) | Out-Null
                                 }
                                 $NetInfo = [PSCustomObject]@{
                         
@@ -229,6 +252,7 @@ function Get-PPSMWRemoteDataToFile {
                             }
                         }
                     }
+
                     return $NetInfo
                 }
 
@@ -329,7 +353,7 @@ function Get-PPSMWRemoteDataToFile {
                 $DeviceString = $Device.Name
             }
 
-            if ($Access -eq $true){
+            if ($Access){
             
                 $Available = Confirm-Connection -Device $DeviceString
 
@@ -389,7 +413,13 @@ function Get-PPSMWRemoteDataToFile {
                             Write-Verbose "Id: $($Job.Id) | Name: $($Job.Name) | State: $($Job.State) | HasMoreData: $($Job.HasMoreData)"
                         }
                     }
-                    Start-Sleep -Seconds 1
+
+                    if($PSVersionTable.PSVersion.Major -ge 7){
+                        
+                        Write-Host -NoNewline "`r$($Progress[$i])"
+                        if ($i -eq 13){$i = 0}else{$i++}
+                    }
+                    Start-Sleep -Milliseconds 500
                 }until($Jobs.count -eq 0)
             }
             else{

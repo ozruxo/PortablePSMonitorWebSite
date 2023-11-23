@@ -1,10 +1,47 @@
+<#
+.SYNOPSIS
+    Create web page for individual devices.
+
+.DESCRIPTION
+    Create web page for individual devices.
+
+.PARAMETER PathToFile
+    Specify the path to the JSON for the individual device.
+
+.PARAMETER IndividualWebFolderPath
+    Specify the individual folder path.
+
+.PARAMETER RootDirectoryPath
+    Specify the root directory path for the website.
+
+.PARAMETER TemplateFolderName
+    Specify the name of the template folder.
+
+.EXAMPLE
+    Deploy-PPSMWIndividualPage `
+    -PathToFile $PathToFile `
+    -IndividualWebFolderPath $IndividualWebFolderPath `
+    -RootDirectoryPath $RootDirectoryPath `
+    -TemplateFolderName $TemplateFolderName
+
+.NOTES
+    Any improvements welcome.
+
+.FUNCTIONALITY
+    PPSMW build web site
+#>
+
 function Deploy-PPSMWIndividualPage {
 
     [CmdletBinding()]
     param(
+        [Parameter(mandatory=$true)]
         [String]$PathToFile,
+        [Parameter(mandatory=$true)]
         [String]$IndividualWebFolderPath,
+        [Parameter(mandatory=$true)]
         [String]$RootDirectoryPath,
+        [Parameter(mandatory=$true)]
         [String]$TemplateFolderName
     )
 
@@ -82,7 +119,7 @@ function Deploy-PPSMWIndividualPage {
             foreach ($DD in $DeviceProperties.DataDiskInfo){
             
                 $PrintInternalDD01 = @"
-            <div class="termPH"> DataDisk: $($DD.DiskLetter) </div>
+            <div class="termPH"> Data: $($DD.DiskLetter) </div>
 "@
                 $PrintDD01.Add($PrintInternalDD01) | Out-Null
             }
@@ -90,12 +127,12 @@ function Deploy-PPSMWIndividualPage {
             foreach ($DD in $DeviceProperties.DataDiskInfo){
             
                 $PrintInternalDD02 = @"
-            <div class="termPH"> ------------ </div>
+            <div class="termPH"> -------- </div>
 "@
                 $PrintDD02.Add($PrintInternalDD02) | Out-Null
             }
             $PrintDD03 = [System.Collections.ArrayList]::New()
-            $Spaces = Get-Spacing -MaxLength 9 -MinLength ((($DD.DiskPerc).Length))
+            $Spaces = Get-Spacing -MaxLength 5 -MinLength ((($DD.DiskPerc).Length))
             foreach ($DD in $DeviceProperties.DataDiskInfo){
             
                 $PrintInternalDD03 = @"
@@ -303,7 +340,7 @@ $InnerHWPrint15
             #region Processor info
             #----Processor----#
             if (($DeviceProperties.Processor).Count -gt 1){$Spaces = '(x2)'}
-            else{$Spaces = Get-Spacing -MaxLength 9 -MinLength (($DeviceProperties.Processor.DeviceID).Length + 1)}
+            else{$Spaces = Get-Spacing -MaxLength 9 -MinLength (($DeviceProperties.Processor[0].DeviceID).Length + 1)}
             $InnerProcPrint01 = @"
             <div class="termPH"> Processor </div>
 "@
@@ -311,11 +348,11 @@ $InnerHWPrint15
             <div class="termPH"> --------- </div>
 "@
             $InnerProcPrint09 = @"
-            <div> $($DeviceProperties.Processor.DeviceID) $Spaces </div>
+            <div> $($DeviceProperties.Processor[0].DeviceID) $Spaces </div>
 "@
             #-----------------#
             #-------Name------#
-            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.Processor.Name).Length - 1) -MinLength 4
+            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.Processor[0].Name).Length - 1) -MinLength 4
             $InnerProcPrint02 = @"
             <div class="termPH"> Name $Spaces </div>
 "@
@@ -323,10 +360,11 @@ $InnerHWPrint15
             <div class="termPH"> ---- $Spaces </div>
 "@
             $InnerProcPrint10 = @"
-            <div> Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz </div>
+            <div> $($DeviceProperties.Processor[0].Name) </div>
 "@
             #-----------------#
             #------Cores------#
+            $spaces = Get-Spacing -MaxLength 5 -MinLength (($DeviceProperties.Processor[0].NumberOfCores).Length)
             $InnerProcPrint03 = @"
             <div class="termPH"> Cores </div>
 "@
@@ -334,7 +372,7 @@ $InnerHWPrint15
             <div class="termPH"> ----- </div>
 "@
             $InnerProcPrint11 = @"
-            <div> 2 &nbsp&nbsp&nbsp</div>
+            <div> $($DeviceProperties.Processor[0].NumberOfCores) $Spaces </div>
 "@
             #-----------------#
             #-----Logical-----#
@@ -345,7 +383,7 @@ $InnerHWPrint15
         <div class="termPH"> ------------- </div>
 "@
             $InnerProcPrint12 = @"
-            <div> 4 </div>
+            <div> $($DeviceProperties.Processor[0].NumberOfLogicalCores) </div>
 "@
             #-----------------#
             $Print06 = @"

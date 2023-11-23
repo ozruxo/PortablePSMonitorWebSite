@@ -1,12 +1,58 @@
+<#
+.SYNOPSIS
+    Create the 'single' web page.
+
+.DESCRIPTION
+    Create the 'single' web page. This page alphabetizes the list of deivces in interger or alphabetical headers.
+
+.PARAMETER RootDirectoryPath
+    Specify the root directory of the website.
+
+.PARAMETER NonVMFolderPath
+    Specify the directory path of the non virtual machine devices.
+
+.PARAMETER vHostFolderPath
+    Specify the directory path of the vitual host devices.
+
+.PARAMETER VMFolderPath
+    Specify the directory path of the virtual machine devices.
+
+.PARAMETER TemplateFolderName
+    Specify the name of the template folder.
+
+.PARAMETER IndividualDevicePagePath
+    Specify the path for the 'single' page. Changing this would required updates to the HTML.
+
+.EXAMPLE
+    Deploy-PPSMWSingle `
+    -RootDirectoryPath $RootDirectoryPath `
+    -NonVMFolderPath $NonVMFolderPath `
+    -vHostFolderPath $VMFolderPAth `
+    -TemplateFolderName $TemplateFolderName `
+    -IndividualDevicePagePath $IndividualDevicePagePath
+
+.NOTES
+    Any improvements welcome.
+
+.FUNCTIONALITY
+    PPSMW build web site
+#>
+
 function Deploy-PPSMWSingle {
 
     [CmdletBinding()]
     param(
+        [Parameter(mandatory=$true)]
         [String]$RootDirectoryPath,
+        [Parameter(mandatory=$true)]
         [String]$NonVMFolderPath,
+        [Parameter(mandatory=$true)]
         [String]$vHostFolderPath,
+        [Parameter(mandatory=$true)]
         [String]$VMFolderPath,
+        [Parameter(mandatory=$true)]
         [String]$TemplateFolderName,
+        [Parameter(mandatory=$true)]
         [String]$IndividualDevicePagePath
     )
 
