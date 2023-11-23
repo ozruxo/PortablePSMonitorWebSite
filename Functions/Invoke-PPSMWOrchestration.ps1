@@ -193,7 +193,7 @@ function Invoke-PPSMWOrchestration {
                         $NoAccessFiles = Get-ChildItem -Path $NoAccessFolderPath
                         foreach ($NAFile in $NoAccessFiles){
 
-                            Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name).Split('.')[0])"
+                            Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name -split '.',-6))"
                         }
                     }
                     
@@ -250,7 +250,7 @@ function Invoke-PPSMWOrchestration {
                     $NoAccessFiles = Get-ChildItem -Path $NoAccessFolderPath
                     foreach ($NAFile in $NoAccessFiles){
 
-                        Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name).Split('.')[0])"
+                        Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name -split '.',-6))"
                     }
                 }
                 
@@ -300,7 +300,7 @@ function Invoke-PPSMWOrchestration {
                         $NoAccessFiles = Get-ChildItem -Path $NoAccessFolderPath
                         foreach ($NAFile in $NoAccessFiles){
     
-                            Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name).Split('.')[0])"
+                            Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name -split '.',-6))"
                         }
                     }
 
@@ -352,7 +352,7 @@ function Invoke-PPSMWOrchestration {
                     $NoAccessFiles = Get-ChildItem -Path $NoAccessFolderPath
                     foreach ($NAFile in $NoAccessFiles){
 
-                        Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name).Split('.')[0])"
+                        Write-Host -ForegroundColor Red "Cannot access: $(($NAFile.Name -split '.',-6))"
                     }
                 }
 
