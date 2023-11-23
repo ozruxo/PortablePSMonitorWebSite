@@ -29,6 +29,9 @@
 .PARAMETER IndexFileName
     Specify the index (home) HTML page name. If this changes you will have to update the HTML.
 
+.PARAMETER NoAccessFolderPath
+    Specify the directory path for device that can not be reached.
+
 .EXAMPLE
     Deploy-PPSMWIndex `
     -RootDirectoryPath $RootDirectoryPath `
@@ -36,7 +39,8 @@
     -vHostFolderPath $vHostFolderPath `
     -VMFolderPAth $VMFolderPath `
     -TemplateFolderPath $TemplateFolderPath `
-    -IndexFileName $IndexFileName
+    -IndexFileName $IndexFileName `
+    -NoAccessFolderPath $NoAccessFolderPath    
 
 .EXAMPLE
     Deploy-PPSMWIndex `
@@ -44,7 +48,8 @@
     -PingOnly `
     -PingFolderPath $PingFolderPath `
     -TemplateFolderPath $TemplateFolderPath `
-    -IndexFileName $IndexFileName
+    -IndexFileName $IndexFileName `
+    -NoAccessFolderPath $NoAccessFolderPath
 
 .NOTES
     Any improvements welcome.
@@ -66,7 +71,9 @@ function Deploy-PPSMWIndex {
         [Parameter(mandatory=$true)]
         [String]$TemplateFolderName,
         [Parameter(mandatory=$true)]
-        [String]$IndexFileName
+        [String]$IndexFileName,
+        [Parameter(mandatory=$true)]
+        [String]$NoAccessFolderPath
     )
 
     #region INITIAL VARIABLES
@@ -131,7 +138,8 @@ function Deploy-PPSMWIndex {
         if ($PingOnly){
 
             Write-Verbose "Writing ping only index page"
-            $Devices = Get-ChildItem -Path $PingFolderPath
+            $Devices = Get-ChildItem -Path $PingFolderPath,$NoAccessFolderPath
+            
             $PrintPage.Add((Get-Content $TemplateStartPing)) | Out-Null
 
             foreach ($Device in $Devices){
@@ -145,7 +153,7 @@ function Deploy-PPSMWIndex {
         else{
 
             Write-Verbose "Writing index page with permissions"
-            $Devices = Get-ChildItem -Path $NonVMFolderPath,$vHostFolderPath,$VMFolderPath
+            $Devices = Get-ChildItem -Path $NonVMFolderPath,$vHostFolderPath,$VMFolderPath,$NoAccessFolderPath
             $PrintPage.Add((Get-Content $TemplateStart)) | Out-Null
             
             foreach ($Device in $Devices){

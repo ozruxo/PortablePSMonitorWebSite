@@ -41,13 +41,17 @@
 .PARAMETER IndividualDevicePagePath
     Specify the path for the 'single' web page. Changing this would required updates to the HTML.
 
+.PARAMETER NoAccessFolderPath
+    Specify the directory path for device that can not be reached.
+
 .EXAMPLE
     Build-PPSMWSitePages `
     -RootDirectoryPath $env:USERPROFILE\Desktop\web `
     -ReferenceDataPath $ReferenceDataPath `
     -PingFolderPath $PingFolderPath `
     -TemplateFolderName `
-    -IndexFileName $IndexFileName
+    -IndexFileName $IndexFileName `
+    -NoAccessFolderPath $NoAccessFolderPath
 
 .EXAMPLE
     Build-PPSMWSitePages `
@@ -62,7 +66,8 @@
     -TemplateFolderName `
     -IndexFileName $IndexFileName `
     -IndividualWebFolderPath $IndividualWebFolderPath `
-    -IndividualDevicePagePath $IndividualDeviceFolderPath
+    -IndividualDevicePagePath $IndividualDeviceFolderPath `
+    -NoAccessFolderPath $NoAccessFolderPath
 
 .NOTES
     Any improvements welcome.
@@ -92,7 +97,9 @@ function Build-PPSMWSitePages {
         [Parameter(mandatory=$true)]
         [String]$IndexFileName,
         [String]$IndividualWebFolderPath,
-        [String]$IndividualDevicePagePath
+        [String]$IndividualDevicePagePath,
+        [Parameter(mandatory=$true)]
+        [String]$NoAccessFolderPath
     )
 
     #region INITIAL VARIABLES
@@ -113,7 +120,8 @@ function Build-PPSMWSitePages {
             -vHostFolderPath $vHostFolderPath `
             -VMFolderPath $VMFolderPath `
             -TemplateFolderName $TemplateFolderName `
-            -IndexFileName $IndexFileName
+            -IndexFileName $IndexFileName `
+            -NoAccessFolderPath $NoAccessFolderPath
 
             # Deploy single page. Has all system
             Deploy-PPSMWSingle `
@@ -227,7 +235,8 @@ function Build-PPSMWSitePages {
                 -PingOnly `
                 -PingFolderPath $PingFolderPath `
                 -TemplateFolderName $TemplateFolderName `
-                -IndexFileName $IndexFileName
+                -IndexFileName $IndexFileName `
+                -NoAccessFolderPath $NoAccessFolderPath
             }
         }
 

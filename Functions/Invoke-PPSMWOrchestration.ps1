@@ -213,7 +213,8 @@ function Invoke-PPSMWOrchestration {
                         -TemplateFolderName $TemplateFolderName `
                         -IndexFileName $IndexFileName `
                         -IndividualWebFolderPath $IndividualWebFolderPath `
-                        -IndividualDevicePagePath $IndividualDevicePagePath
+                        -IndividualDevicePagePath $IndividualDevicePagePath `
+                        -NoAccessFolderPath $NoAccessFolderPath
                     }
                     else{
 
@@ -270,7 +271,8 @@ function Invoke-PPSMWOrchestration {
                     -TemplateFolderName $TemplateFolderName `
                     -IndexFileName $IndexFileName `
                     -IndividualWebFolderPath $IndividualWebFolderPath `
-                    -IndividualDevicePagePath $IndividualDevicePagePath
+                    -IndividualDevicePagePath $IndividualDevicePagePath `
+                    -NoAccessFolderPath $NoAccessFolderPath
                 }
                 else{
 
@@ -316,7 +318,8 @@ function Invoke-PPSMWOrchestration {
                         -vHostFolderPath $vHostFolderPath `
                         -VMFolderPath $VMFolderPath `
                         -TemplateFolderName $TemplateFolderName `
-                        -IndexFileName $IndexFileName
+                        -IndexFileName $IndexFileName `
+                        -NoAccessFolderPath $NoAccessFolderPath
                     }
                     else{
     
@@ -368,7 +371,8 @@ function Invoke-PPSMWOrchestration {
                     -vHostFolderPath $vHostFolderPath `
                     -VMFolderPath $VMFolderPath `
                     -TemplateFolderName $TemplateFolderName `
-                    -IndexFileName $IndexFileName
+                    -IndexFileName $IndexFileName `
+                    -NoAccessFolderPath $NoAccessFolderPath
                 }
                 else{
 
