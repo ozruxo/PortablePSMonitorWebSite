@@ -44,4 +44,6 @@ When selecting the imgaes on the virtual host page you will see very brief input
 
 > [!NOTE]
 > You may have noticed 3 ellipses. First is to indicate the computer is ping able. Second is to indicate Access to the system. Third is to indicate the disk status of being greater that 15%.
-> [!Note] If you see a combination of Green Red Red. The computer is pingable, but PowerShell is not able to reach the system. When applicable, reboot the system or spend a bunch of time trouble shooting why ps session is not working [smily face].
+
+> [!Note]
+> If you see a combination of Green Red Red. The computer is pingable, but PowerShell is not able to reach the system. When applicable, reboot the system or spend a bunch of time trouble shooting why ps session is not working [smily face].
