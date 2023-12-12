@@ -48,3 +48,7 @@ When selecting the imgaes on the virtual host page you will see very brief input
 
 > [!Note]
 > If you see a combination of Green Red Red. The computer is pingable, but PowerShell is not able to reach the system. When applicable, reboot the system or spend a bunch of time trouble shooting why ps session is not working [smily face].
+
+# Issues
+
+There are some issues/unfinished features, that I still need to attended to. I only work on this when I have extra time.
