@@ -34,7 +34,14 @@ The page should look like the following:
 
 ![virtual host](https://github.com/ozruxo/PortablePSMonitorWebSite/blob/main/exampleimages/virtualhost.png)
 
+> [!NOTE]
+> The review section will populate the name of a virtual machine, when the OS disk has less than 15% virtual disk space available. 
+
 ### Selecting the images on the virtual host page
 
 When selecting the imgaes on the virtual host page you will see very brief input on the device. Both for the VM and the Host.
 ![vm](https://github.com/ozruxo/PortablePSMonitorWebSite/blob/main/exampleimages/vm.png)
+
+> [!NOTE]
+> You may have noticed 3 ellipses. First is to indicate the computer is ping able. Second is to indicate Access to the system. Third is to indicate the disk status of being greater that 15%.
+> [!Note] If you see a combination of Green Red Red. The computer is pingable, but PowerShell is not able to reach the system. When applicable, reboot the system or spend a bunch of time trouble shooting why ps session is not working [smily face].
