@@ -17,6 +17,7 @@ You should see something similar to the following:
 ### Hover over device name
 
 When hovering over the name of the device. A simple status message will appear.
+
 ![hover device name](https://github.com/ozruxo/PortablePSMonitorWebSite/blob/main/exampleimages/hover-hp.png)
 
 ### Selecting device names
