@@ -37,6 +37,9 @@ The page should look like the following:
 > [!NOTE]
 > The review section will populate the name of a virtual machine, when the OS disk has less than 15% virtual disk space available. 
 
+>[!NOTE]
+> Why are there X's? Well, I didn't want to account for devices that we not originally on the list for monitoring. So, you get greated with the 404 page.
+
 ### Selecting the images on the virtual host page
 
 When selecting the imgaes on the virtual host page you will see very brief input on the device. Both for the VM and the Host.
