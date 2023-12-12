@@ -40,6 +40,7 @@ The page should look like the following:
 ### Selecting the images on the virtual host page
 
 When selecting the imgaes on the virtual host page you will see very brief input on the device. Both for the VM and the Host.
+
 ![vm](https://github.com/ozruxo/PortablePSMonitorWebSite/blob/main/exampleimages/vm.png)
 
 > [!NOTE]
