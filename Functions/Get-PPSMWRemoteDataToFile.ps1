@@ -380,47 +380,7 @@ function Get-PPSMWRemoteDataToFile {
                     Set-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
 
                 }
-                # Get Data from Jobs and sort files to the correct directory
-                do{
-                    # Set variable
-                    $Jobs = Get-Job
 
-                    foreach ($Job in $Jobs){
-                    
-                        # Print all data to referenceData folder
-                        if ($Job.State -eq 'Completed' -and $Job.HasMoreData -eq $true){
-                        
-                            Write-Verbose "Getting data from job"
-                            $ReceivedJob = Receive-Job -InstanceId $Job.InstanceId
-                            $ParseData = $ReceivedJob | ConvertFrom-Json
-                            Set-Content -Value $ReceivedJob -Path "$ReferenceDataPath\$($ParseData.DeviceType)\$($Job.Name).json"
-                        }
-                        # Remove successful job
-                        elseif ($Job.State -eq 'Completed' -and $Job.HasMoreData -eq $false){
-                        
-                            Write-Verbose "Removed successful job"
-                            Remove-Job -InstanceId $Job.InstanceId
-                        }
-                        # Remove failed job
-                        elseif ($Job.State -eq 'Failed' -and $Job.HasMoreData -eq 'False'){
-
-                            Write-Verbose "$($Job.Name) failed with no data"
-                            Remove-Job -InstanceID $Job.InstanceId
-                        }
-                        # Print verbose on unknown job status
-                        elseif($Job.State -ne 'Completed' -and $Job.State -ne 'Failed'){
-                        
-                            Write-Verbose "Id: $($Job.Id) | Name: $($Job.Name) | State: $($Job.State) | HasMoreData: $($Job.HasMoreData)"
-                        }
-                    }
-
-                    if($PSVersionTable.PSVersion.Major -ge 7){
-                        
-                        Write-Host -NoNewline "`r$($Progress[$i])"
-                        if ($i -eq 13){$i = 0}else{$i++}
-                    }
-                    Start-Sleep -Milliseconds 500
-                }until($Jobs.count -eq 0)
             }
             else{
 
@@ -452,6 +412,65 @@ function Get-PPSMWRemoteDataToFile {
                 }
             }
         }
+        # Get Data from Jobs and sort files to the correct directory
+        do{
+            # Set variable
+            $Jobs = Get-Job
+
+            foreach ($Job in $Jobs){
+            
+                # Print all data to referenceData folder
+                if ($Job.State -eq 'Completed' -and $Job.HasMoreData -eq $true){
+                
+                    Write-Verbose "Getting data from job"
+                    $ReceivedJob = Receive-Job -InstanceId $Job.InstanceId -ErrorAction SilentlyContinue
+                    if ([string]::IsNullOrWhiteSpace($ReceivedJob)){
+                            
+                        Write-Verbose "No access for $($Job.Name)"
+                        $NoAccessValue = [PScustomObject]@{
+                        
+                            Name     = $Job.Name
+                            Status   = "Online"
+                            PingOnly = 'No'
+                        }
+                        Set-Content -Value ($NoAccessValue | ConvertTo-Json) -Path "$NoAccessFolderPath\$($Job.Name).json"
+                    }
+                    else{
+                        
+                        $ParseData = $ReceivedJob | ConvertFrom-Json 
+                        Write-Verbose "Writing Data for $($Job.Name)"
+                        Set-Content -Value $ReceivedJob -Path "$ReferenceDataPath\$($ParseData.DeviceType)\$($Job.Name).json"
+                    }
+                }
+                # Remove successful job
+                elseif ($Job.State -eq 'Completed' -and $Job.HasMoreData -eq $false){
+                
+                    Write-Verbose "Removed successful job"
+                    Remove-Job -InstanceId $Job.InstanceId
+                }
+                # Remove failed job
+                elseif ($Job.State -eq 'Failed' -and $Job.HasMoreData -eq 'False'){
+
+                    Write-Verbose "$($Job.Name) failed with no data"
+                    Remove-Job -InstanceID $Job.InstanceId
+                }
+                # Print verbose on unknown job status
+                elseif($Job.State -ne 'Completed' -and $Job.State -ne 'Failed'){
+                    
+                    if ($Job.State -ne 'Running'){
+
+                        Write-Verbose "Id: $($Job.Id) | Name: $($Job.Name) | State: $($Job.State) | HasMoreData: $($Job.HasMoreData)"
+                    }
+                }
+            }
+
+            if($PSVersionTable.PSVersion.Major -ge 7){
+                
+                Write-Host -NoNewline "`r$($Progress[$i])"
+                if ($i -eq 13){$i = 0}else{$i++}
+            }
+            Start-Sleep -Milliseconds 500
+        }until($Jobs.count -eq 0)
 
     #endregion
 
