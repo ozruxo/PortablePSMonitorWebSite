@@ -264,8 +264,11 @@ function Build-PPSMWSitePages {
                 }
                 # Print verbose on unknown job status
                 elseif($Job.State -ne 'Completed' -and $Job.State -ne 'Failed'){
-                
-                    Write-Verbose "Id: $($Job.Id) | Name: $($Job.Name) | State: $($Job.State) | HasMoreData: $($Job.HasMoreData)"
+
+                    if($Job.Status -ne 'Running'){
+                    
+                        Write-Verbose "Id: $($Job.Id) | Name: $($Job.Name) | State: $($Job.State) | HasMoreData: $($Job.HasMoreData)"
+                    }
                 }
             }
             if($PSVersionTable.PSVersion.Major -ge 7){
