@@ -72,7 +72,7 @@ function Invoke-PPSMWOrchestration {
 
     #region INITIAL VARIABLES
 
-        # Easy variables to change variables
+        # Easy variables to change
         $IndividualDevicePageFolder = 'individual'
         $IndividualDevicePageName   = 'single'
         $vHostDevicePageName        = 'allvhosts'
