@@ -56,7 +56,7 @@ When selecting the imgaes on the virtual host page you will see very brief input
 
 You should see something similar to the following:
 
-![single page](https://github.com/ozruxo/PortablePSMonitorWebSite/blob/main/exampleimages/single.png)
+
 
 # Issues
 
