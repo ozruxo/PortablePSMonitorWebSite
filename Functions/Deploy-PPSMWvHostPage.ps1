@@ -99,7 +99,7 @@ function Deploy-PPSMWvHostPage {
                 else {
 
                     $vDiskStatus = 'baddisk'
-                    $ReviewDevices.Add("$vHostName")
+                    $ReviewDevices.Add("$vHostName") | Out-Null
                 }
 
                 $vHostCustomObject = [PSCustomObject]@{
@@ -193,7 +193,7 @@ function Deploy-PPSMWvHostPage {
                     else {
     
                         $DiskStatus = 'baddisk'
-                        $ReviewDevices.Add("$($IPM.Name)")
+                        $ReviewDevices.Add("$($IPM.Name)") | Out-Null
                     }
     
                     $VMCustomObject = [PSCustomObject]@{
