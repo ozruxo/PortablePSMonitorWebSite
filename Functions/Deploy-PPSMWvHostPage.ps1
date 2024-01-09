@@ -75,7 +75,6 @@ function Deploy-PPSMWvHostPage {
             $PieceTogether    = [System.Collections.ArrayList]::New()
             $IPsMatch         = [System.Collections.ArrayList]::New()
             $IPsDontMatch     = [System.Collections.ArrayList]::New()
-            $ReviewDevices    = [System.Collections.ArrayList]::New()
             $AllvHostFiles    = Get-ChildItem -Path $PathToFiles
             $VMs              = Get-ChildItem -Path $PathToVMs
             $OnlineImage      = 'azure-vms-icon-2048x1891.png'
@@ -85,8 +84,9 @@ function Deploy-PPSMWvHostPage {
             foreach($vHost in $AllvHostFiles){
 
                 # Reset variable
-                $IPsMatch     = [System.Collections.ArrayList]::New()
-                $IPsDontMatch = [System.Collections.ArrayList]::New()
+                $IPsMatch      = [System.Collections.ArrayList]::New()
+                $IPsDontMatch  = [System.Collections.ArrayList]::New()
+                $ReviewDevices = [System.Collections.ArrayList]::New()
 
                 # Get deatils from device
                 $DeviceProperties = Get-Content -Path $vHost.FullName | ConvertFrom-Json
