@@ -75,6 +75,7 @@ function Deploy-PPSMWvHostPage {
             $PieceTogether    = [System.Collections.ArrayList]::New()
             $IPsMatch         = [System.Collections.ArrayList]::New()
             $IPsDontMatch     = [System.Collections.ArrayList]::New()
+            $ReviewDevices    = [System.Collections.ArrayList]::New()
             $AllvHostFiles    = Get-ChildItem -Path $PathToFiles
             $VMs              = Get-ChildItem -Path $PathToVMs
             $OnlineImage      = 'azure-vms-icon-2048x1891.png'
@@ -98,6 +99,7 @@ function Deploy-PPSMWvHostPage {
                 else {
 
                     $vDiskStatus = 'baddisk'
+                    $ReviewDevices.Add("$vHostName")
                 }
 
                 $vHostCustomObject = [PSCustomObject]@{
@@ -191,6 +193,7 @@ function Deploy-PPSMWvHostPage {
                     else {
     
                         $DiskStatus = 'baddisk'
+                        $ReviewDevices.Add("$($IPM.Name)")
                     }
     
                     $VMCustomObject = [PSCustomObject]@{
@@ -305,9 +308,12 @@ function Deploy-PPSMWvHostPage {
                 $PieceTogether.Add($PrintMidSection02) | Out-Null
 
                 # foreach review item
-                $vHostReview = @"
-                    $VMReview
+                foreach ($ReviewDevice in $ReviewDevices){
+                
+                    $vHostReview = @"
+                    $ReviewDevice
 "@
+                }
                 $PieceTogether.Add($vHostReview) | Out-Null
 
                 $PrintMidSection03 = @"
