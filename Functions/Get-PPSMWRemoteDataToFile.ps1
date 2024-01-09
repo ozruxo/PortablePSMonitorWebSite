@@ -430,7 +430,7 @@ function Get-PPSMWRemoteDataToFile {
                         $NoAccessValue = [PScustomObject]@{
                         
                             Name     = $Job.Name
-                            Status   = "Online"
+                            Status   = "NotAccessible"
                             PingOnly = 'No'
                         }
                         Set-Content -Value ($NoAccessValue | ConvertTo-Json) -Path "$NoAccessFolderPath\$($Job.Name).json"
