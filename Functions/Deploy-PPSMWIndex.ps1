@@ -104,6 +104,11 @@ function Deploy-PPSMWIndex {
                 $DeviceColor = "Green$RNum"
                 $Message     = "Pingable IP"
             }
+            elseif($Device.Status -eq 'NotAccessible'){
+            
+                $DeviceColor = 'Red'
+                $Message     = 'Not Accessible'
+            }
             else {
                 
                 $DeviceColor = 'Red'
