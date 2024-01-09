@@ -180,30 +180,30 @@ function Deploy-PPSMWvHostPage {
                         $AllVMs.Add($VMCustomObject) | Out-Null
                     }
                 }
-            }
 
-            # Create list of VMs to print
-            foreach ($IPM in $IPsMatch){
-
-                if ([int]$IPM.OSDiskPerc -ge 15){
-
-                    $DiskStatus = 'gooddisk'
+                # Create list of VMs to print
+                foreach ($IPM in $IPsMatch){
+    
+                    if ([int]$IPM.OSDiskPerc -ge 15){
+    
+                        $DiskStatus = 'gooddisk'
+                    }
+                    else {
+    
+                        $DiskStatus = 'baddisk'
+                    }
+    
+                    $VMCustomObject = [PSCustomObject]@{
+                        Name       = $IPM.Name
+                        Status     = 'online'
+                        DiskPerc   = $IPM.OSDiskPerc
+                        Usercount  = $IPM.UserCount
+                        Access     = 'access'
+                        DiskStatus = $DiskStatus
+                        vHost      = $vHostName
+                    }
+                    $AllVMs.Add($VMCustomObject) | Out-Null
                 }
-                else {
-
-                    $DiskStatus = 'baddisk'
-                }
-
-                $VMCustomObject = [PSCustomObject]@{
-                    Name       = $IPM.Name
-                    Status     = 'online'
-                    DiskPerc   = $IPM.OSDiskPerc
-                    Usercount  = $IPM.UserCount
-                    Access     = 'access'
-                    DiskStatus = $DiskStatus
-                    vHost      = $vHostName
-                }
-                $AllVMs.Add($VMCustomObject) | Out-Null
             }
 
             # Foreach vHost
