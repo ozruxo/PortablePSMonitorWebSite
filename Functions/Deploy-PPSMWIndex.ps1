@@ -117,12 +117,24 @@ function Deploy-PPSMWIndex {
 
             if ($Permission){
                 
+                if ($Device.Status -eq 'NotAccessible'){
+                
+                $Print = @"
+        <div class="deviceObject device$DeviceColor">
+                    <div class="deviceName"><a class="deviceLink" href="pages/error/404.html">$($DeviceName.ToLower())</a></div>
+            <div class="hide">$Message</div>
+        </div>
+"@
+                }
+                else{
+
                 $Print = @"
         <div class="deviceObject device$DeviceColor">
             <div class="deviceName"><a class="deviceLink" href="pages/individual/$($DeviceName).html">$($DeviceName.ToLower())</a></div>
             <div class="hide">$Message</div>
         </div>
 "@
+                }
             }
             else{
 
