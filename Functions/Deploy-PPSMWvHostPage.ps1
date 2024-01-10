@@ -70,16 +70,16 @@ function Deploy-PPSMWvHostPage {
             )
 
             # Variables
-            $AllVMs           = [System.Collections.ArrayList]::New()
-            $AllvHosts        = [System.Collections.ArrayList]::New()
-            $PieceTogether    = [System.Collections.ArrayList]::New()
-            $IPsMatch         = [System.Collections.ArrayList]::New()
-            $IPsDontMatch     = [System.Collections.ArrayList]::New()
+            $AllVMs        = [System.Collections.ArrayList]::New()
+            $AllvHosts     = [System.Collections.ArrayList]::New()
+            $PieceTogether = [System.Collections.ArrayList]::New()
+            $IPsMatch      = [System.Collections.ArrayList]::New()
+            $IPsDontMatch  = [System.Collections.ArrayList]::New()
             $ReviewDevices = [System.Collections.ArrayList]::New()
-            $AllvHostFiles    = Get-ChildItem -Path $PathToFiles
-            $VMs              = Get-ChildItem -Path $PathToVMs
-            $OnlineImage      = 'azure-vms-icon-2048x1891.png'
-            $OfflineImage     = 'x.png'
+            $AllvHostFiles = Get-ChildItem -Path $PathToFiles
+            $VMs           = Get-ChildItem -Path $PathToVMs
+            $OnlineImage   = 'azure-vms-icon-2048x1891.png'
+            $OfflineImage  = 'x.png'
 
             # Create website refernce data
             foreach($vHost in $AllvHostFiles){
