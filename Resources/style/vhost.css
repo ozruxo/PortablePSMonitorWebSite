@@ -21,7 +21,6 @@
 .mainVM {
 	max-width: 100%;
 	min-width: 260px;
-	min-height: 240px;
 }
 
 H1 {
@@ -54,6 +53,7 @@ H1 {
 	padding-top: 10px;
 	max-height: auto;
 	transition: height 0.15s ease-out;
+	min-height: 280px;
 }
 
 .host {
