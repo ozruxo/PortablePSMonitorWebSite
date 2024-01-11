@@ -67,7 +67,7 @@ function Deploy-PPSMWIndividualPage {
 
             if ($Specified){
 
-                $TotalSpaces = '&nbsp' *$Specified
+                $TotalSpaces = '&nbsp' * $Specified
             }
             else{
 
@@ -80,11 +80,40 @@ function Deploy-PPSMWIndividualPage {
                 }
                 else{
                 
-                    $TotalSpaces = '&nbsp' *$Multiplyby
+                    $TotalSpaces = '&nbsp' * $Multiplyby
                 }
             }
 
             return $TotalSpaces
+        }
+
+        function Set-RAMDrawing {
+        
+            param(
+                [Int]$Percent
+            )
+            if($Percent -gt 1){
+            
+                $LineNumber = [Math]::Ceiling([int]$Percent/10)
+            }
+            else{
+            
+                $LineNumber = [Math]::Ceiling([Int]$Percent)
+            }
+                        
+            $DrawLine = "|" * $LineNumber
+            if ($LineNumber -ne 10){
+            
+                $DrawDot  = "." * (10 - $LineNumber)
+            }
+            else{
+            
+                $DrawDot = $null
+            }
+
+            $DrawBar = $DrawLine + $DrawDot
+
+            return $DrawBar
         }
 
         function Set-IndividHTML{
@@ -98,383 +127,256 @@ function Deploy-PPSMWIndividualPage {
             $DeviceProperties = Get-Content -Path $PathToFile | ConvertFrom-Json
 
             #region Hostname, RAM percentage and OS Disk percentage
-            $Print01 = @"
-        <div class="termPH"> Hostname </div>
-        <div class="termPH"> -------- </div>
-        <div> $($DeviceName) </div>
-        <div>&nbsp</div>
-        <div class="termPH"> RAM Used </div>
-        <div class="termPH"> -------- </div>
-        <div> $($DeviceProperties.RAMGB)% </div>
-        <div>&nbsp</div>
-        <div class="termPH"> OS Disk Used </div>
-        <div class="termPH"> ------------ </div>
-        <div> $($DeviceProperties.OSDiskPerc)% </div>
-        <div>&nbsp</div>
+            
+                if($DeviceProperties.DeviceType -eq 'vHost'){
+                
+                    $RAMPrint = @"
+            <div> RAM Avilable : $($DeviceProperties.RAMGB)GB </div>
+"@
+                }
+                else{
+                
+                    $RAMBar = Set-RAMDrawing -Percent $DeviceProperties.RAMGB
+                    $RAMPrint = @"
+            <div> RAM Used : $RAMBar ($($DeviceProperties.RAMGB)%)</div>
+"@
+                }
+
+                $Print01 = @"
+            <div> Hostname : $($DeviceName) </div>
+            <div> Users    : $($DeviceProperties.UserCount) </div>
+            <div>&nbsp</div>
+            $RAMPrint
+            <div>&nbsp</div>
+            <div class="termPH"> OSDiskUsed </div>
+            <div class="termPH"> ---------- </div>
+            <div> $($DeviceProperties.OSDiskPerc)% </div>
+            <div>&nbsp</div>
 "@
             #endregion
 
             #region Data disk(s)
-            $PrintDD01 = [System.Collections.ArrayList]::New()
-            foreach ($DD in $DeviceProperties.DataDiskInfo){
+                
+                $PrintDD01 = [System.Collections.ArrayList]::New()
+                foreach ($DD in $DeviceProperties.DataDiskInfo){
             
-                $PrintInternalDD01 = @"
-            <div class="termPH"> Data: $($DD.DiskLetter) </div>
+                    $PrintInternalDD01 = @"
+                <div class="termPH"> Data: $($DD.DiskLetter) </div>
 "@
-                $PrintDD01.Add($PrintInternalDD01) | Out-Null
-            }
-            $PrintDD02 = [System.Collections.ArrayList]::New()
-            foreach ($DD in $DeviceProperties.DataDiskInfo){
+                    $PrintDD01.Add($PrintInternalDD01) | Out-Null
+                }
+                $PrintDD02 = [System.Collections.ArrayList]::New()
+                foreach ($DD in $DeviceProperties.DataDiskInfo){
             
-                $PrintInternalDD02 = @"
-            <div class="termPH"> -------- </div>
+                    $PrintInternalDD02 = @"
+                <div class="termPH"> -------- </div>
 "@
-                $PrintDD02.Add($PrintInternalDD02) | Out-Null
-            }
-            $PrintDD03 = [System.Collections.ArrayList]::New()
-            $Spaces = Get-Spacing -MaxLength 5 -MinLength ((($DD.DiskPerc).Length))
-            foreach ($DD in $DeviceProperties.DataDiskInfo){
+                    $PrintDD02.Add($PrintInternalDD02) | Out-Null
+                }
+                $PrintDD03 = [System.Collections.ArrayList]::New()
+                $Spaces = Get-Spacing -MaxLength 5 -MinLength ((($DD.DiskPerc).Length))
+                foreach ($DD in $DeviceProperties.DataDiskInfo){
             
-                $PrintInternalDD03 = @"
-            <div> $($DD.DiskPerc)% $Spaces </div>
+                    $PrintInternalDD03 = @"
+                <div> $($DD.DiskPerc)% $Spaces </div>
 "@
-                $PrintDD03.Add($PrintInternalDD03) | Out-Null
-            }
+                    $PrintDD03.Add($PrintInternalDD03) | Out-Null
+                }
 
-            $Print02 = @"
-        <div class="inTermFlex">
+                $Print02 = @"
+            <div class="inTermFlex">
 $PrintDD01
-        </div>
-        <div class="inTermFlex">
+            </div>
+            <div class="inTermFlex">
 $PrintDD02
-        </div>
-        <div class="inTermFlex">
+            </div>
+            <div class="inTermFlex">
 $PrintDD03
-        </div>
-        <div>&nbsp</div>
-"@
-            #endregion
-
-            #region Users
-            $Print03 = @"
-        <div class="termPH"> Users </div>
-        <div class="termPH"> ----- </div>
-        <div> $($DeviceProperties.UserCount) </div>
-        <div>&nbsp</div>
+            </div>
+            <div>&nbsp</div>
 "@
             #endregion
 
             #region Operating System information
-            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.OSInfo.Caption).Length - 1)  -MinLength 10
-            #-----Version-----#
-            $InnerOSPrint01 = @"
-            <div class="termPH"> OS Version $Spaces </div>
+            
+                #-----Version-----#
+                $Spaces = Get-Spacing -Specified 6
+                $InnerOSPrint01 = @"
+            <div> OSVersion $Spaces : $($DeviceProperties.OSInfo.Caption) </div>
 "@
-            $InnerOSPrint05 = @"
-            <div class="termPH"> ---------- $Spaces </div>
+                #-----------------#
+                #---BuildNumber---#
+                $Spaces = Get-Spacing -Specified 4
+                $InnerOSPrint02 = @"
+            <div> BuildNumber $Spaces : $($DeviceProperties.OSInfo.BuildNumber) </div>
 "@
-            $InnerOSPrint09 = @"
-            <div> $($DeviceProperties.OSInfo.Caption) </div>
+
+                #-----------------#
+                #---InstallDate---#
+                $Spaces = Get-Spacing -Specified 4
+                $InnerOSPrint03 = @"
+            <div> InstallDate $Spaces : $($DeviceProperties.OSInfo.InstallDate) </div>
 "@
-            #-----------------#
-            #---BuildNumber---#
-            $Spaces = Get-Spacing -MaxLength 10 -MinLength (($DeviceProperties.OSInfo.BuildNumber).Length -1)
-            $InnerOSPrint02 = @"
-            <div class="termPH"> Build Number </div>
+
+                #-----------------#
+                #-----LastBoot----#
+                $Spaces = Get-Spacing -Specified 1
+                $InnerOSPrint04 = @"
+            <div> LastBootUpTime $Spaces : $($DeviceProperties.OSInfo.LastBootupTime) </div>
 "@
-            $InnerOSPrint06 = @"
-            <div class="termPH"> ------------ </div>
-"@
-            $InnerOSPrint10 = @"
-            <div> $($DeviceProperties.OSInfo.BuildNumber) $Spaces </div>
-"@
-            #-----------------#
-            #---InstallDate---#
-            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.OSInfo.InstallDate).Length - 1 ) -MinLength 12
-            $InnerOSPrint03 = @"
-            <div class="termPH"> Install Date $Spaces </div>
-"@
-            $InnerOSPrint07 = @"
-            <div class="termPH"> ------------ $Spaces </div>
-"@
-            $InnerOSPrint11 = @"
-            <div> $($DeviceProperties.OSInfo.InstallDate) </div>
-"@
-            #-----------------#
-            #-----LastBoot----#
-            $InnerOSPrint04 = @"
-            <div class="termPH"> LastBootUpTime </div>
-"@
-            $InnerOSPrint08 = @"
-            <div class="termPH"> -------------- </div>
-"@
-            $InnerOSPrint12 = @"
-            <div> $($DeviceProperties.OSInfo.LastBootupTime) </div>
-"@
-            #-----------------#
-            $Print04 = @"
-        <div class="inTermFlex">
+
+                #-----------------#
+            $Print03 = @"
 $InnerOSPrint01
 $InnerOSPrint02
 $InnerOSPrint03
 $InnerOSPrint04
-        </div>
-        <div class="inTermFlex">
-$InnerOSPrint05
-$InnerOSPrint06
-$InnerOSPrint07
-$InnerOSPrint08
-        </div>
-        <div class="inTermFlex">
-$InnerOSPrint09
-$InnerOSPrint10
-$InnerOSPrint11
-$InnerOSPrint12
-        </div>
-        <div>&nbsp</div>
+            <div>&nbsp</div>
 "@
         
             #endregion
 
             #region Hardware info
-            #---Manufacture---#
-            $Spaces = Get-Spacing -MaxLength 12 -MinLength (($DeviceProperties.Hardware.Manufacturer).Length + 1)
-            $InnerHWPrint01 = @"
-            <div class="termPH"> Manufacturer </div>
+            
+                #---Manufacture---#
+                $Spaces = Get-Spacing -Specified 3
+                $InnerHWPrint01 = @"
+            <div> Manufacturer $Spaces : $($DeviceProperties.Hardware.Manufacturer) </div>
 "@
-            $InnerHWPrint06 = @"
-            <div class="termPH"> ------------ </div>
+
+                #-----------------#
+                #------Model------#
+                $Spaces = Get-Spacing -Specified 10
+                $InnerHWPrint02 = @"
+            <div> Model $Spaces : $($DeviceProperties.Hardware.Model) </div>
 "@
-            $InnerHWPrint11 = @"
-            <div> $($DeviceProperties.Hardware.Manufacturer) $Spaces </div>
+
+                #-----------------#
+                #---SystemFamily--#
+                if ([String]::IsNullOrWhiteSpace($DeviceProperties.Hardware.SystemFamily)) {
+                
+                    $Spaces = Get-Spacing -Specified 3
+                    $InnerHWPrint03 = @"
+            <div> SystemFamily $Spaces : N/A </div>
 "@
-            #-----------------#
-            #------Model------#
-            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.Hardware.Model).Length + 1) -MinLength 5
-            $InnerHWPrint02 = @"
-            <div class="termPH"> Model $Spaces </div>
+                }
+                else{
+                
+                    $Spaces = Get-Spacing -Specified 3
+                    $InnerHWPrint03 = @"
+            <div> SystemFamily $Spaces : $($DeviceProperties.Hardware.SystemFamily) </div>
 "@
-            $InnerHWPrint07 = @"
-            <div class="termPH"> ----- $Spaces </div>
+                }
+
+                #-----------------#
+                #---SerialNumber--#
+                $Spaces = Get-Spacing -Specified 3
+                $InnerHWPrint04 = @"
+            <div> SerialNumber $Spaces : $($DeviceProperties.Hardware.SerialNumber) </div>
 "@
-            $InnerHWPrint12 = @"
-            <div> $($DeviceProperties.Hardware.Model) </div>
+
+                #-----------------#
+                #-------BIOS------#
+                $Spaces = Get-Spacing -Specified 4
+                $InnerHWPrint05 = @"
+            <div> BIOSVersion $Spaces : $($DeviceProperties.Hardware.BIOSVersion) </div>
 "@
-            #-----------------#
-            #---SystemFamily--#
-            if ([String]::IsNullOrWhiteSpace($DeviceProperties.Hardware.SystemFamily)) {
-                $Spaces = Get-Spacing -Specified 14
-                $InnerHWPrint03 = @"
-            <div class="termPH"> SystemFamily </div>
-"@
-                $InnerHWPrint08 = @"
-            <div class="termPH"> ------------ </div>
-"@
-                $InnerHWPrint13 = @"
-            <div> $Spaces </div>
-"@
-            }
-            else{
-                $Spaces = Get-Spacing -MaxLength (($DeviceProperties.Hardware.SystemFamily).Length + 1) -MinLength 12
-                $InnerHWPrint03 = @"
-            <div class="termPH"> SystemFamily $Spaces </div>
-"@
-                $InnerHWPrint08 = @"
-            <div class="termPH"> ------------ $Spaces </div>
-"@
-                $InnerHWPrint13 = @"
-            <div> $($DeviceProperties.Hardware.SystemFamily) </div>
-"@
-            }
-            #-----------------#
-            #---SerialNumber--#
-            $Spaces = Get-Spacing -MaxLength 13 -MinLength (($DeviceProperties.Hardware.SerialNumber).Length + 1)
-            $InnerHWPrint04 = @"
-            <div class="termPH"> Serial Number </div>
-"@
-            $InnerHWPrint09 = @"
-            <div class="termPH"> ------------- </div>
-"@
-            $InnerHWPrint14 = @"
-            <div> $($DeviceProperties.Hardware.SerialNumber) $Spaces </div>
-"@
-            #-----------------#
-            #-------BIOS------#
-            $InnerHWPrint05 = @"
-            <div class="termPH"> BIOS Version</div>
-"@
-            $InnerHWPrint10 = @"
-            <div class="termPH"> ------------ </div>
-"@
-            $InnerHWPrint15 = @"
-            <div> $($DeviceProperties.Hardware.BIOSVersion) </div>
-"@
-            #-----------------#
-            $Print05 = @"
-        <div class="inTermFlex">
+
+                #-----------------#
+                $Print04 = @"
 $InnerHWPrint01
 $InnerHWPrint02
 $InnerHWPrint03
 $InnerHWPrint04
 $InnerHWPrint05
-        </div>
-        <div class="inTermFlex">
-$InnerHWPrint06
-$InnerHWPrint07
-$InnerHWPrint08
-$InnerHWPrint09
-$InnerHWPrint10
-        </div>
-        <div class="inTermFlex">
-$InnerHWPrint11
-$InnerHWPrint12
-$InnerHWPrint13
-$InnerHWPrint14
-$InnerHWPrint15
-        </div>
-        <div>&nbsp</div>
+            <div>&nbsp</div>
 "@
         
             #endregion
 
             #region Processor info
-            #----Processor----#
-            if (($DeviceProperties.Processor).Count -gt 1){$Spaces = '(x2)'}
-            else{$Spaces = Get-Spacing -MaxLength 9 -MinLength (($DeviceProperties.Processor[0].DeviceID).Length + 1)}
-            $InnerProcPrint01 = @"
-            <div class="termPH"> Processor </div>
+                
+                #----Processor----#
+                $Spaces = Get-Spacing -Specified 6
+                if (($DeviceProperties.Processor).Count -gt 1){
+                
+                    $InnerProcPrint01 = @"
+            <div> Processor $Spaces : $($DeviceProperties.Processor[0].DeviceID) (x2) </div>
 "@
-            $InnerProcPrint05 = @"
-            <div class="termPH"> --------- </div>
+                }
+                else{
+                
+                    $InnerProcPrint01 = @"
+            <div> Processor $Spaces : $($DeviceProperties.Processor[0].DeviceID) </div>
+"@                  
+                }
+
+                #-----------------#
+                #-------Name------#
+                $Spaces = Get-Spacing -Specified 11
+                $InnerProcPrint02 = @"
+            <div> Name $Spaces : $($DeviceProperties.Processor[0].Name) </div>
 "@
-            $InnerProcPrint09 = @"
-            <div> $($DeviceProperties.Processor[0].DeviceID) $Spaces </div>
+
+                #-----------------#
+                #------Cores------#
+                $Spaces = Get-Spacing -Specified 10
+                $InnerProcPrint03 = @"
+            <div> Cores $Spaces : $($DeviceProperties.Processor[0].NumberOfCores) </div>
 "@
-            #-----------------#
-            #-------Name------#
-            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.Processor[0].Name).Length - 1) -MinLength 4
-            $InnerProcPrint02 = @"
-            <div class="termPH"> Name $Spaces </div>
+
+                #-----------------#
+                #-----Logical-----#
+                $spaces = Get-Spacing -Specified 3
+                $InnerProcPrint04 = @"
+            <div> LogicalCores $Spaces : $($DeviceProperties.Processor[0].NumberOfLogicalCores) </div>
 "@
-            $InnerProcPrint06 = @"
-            <div class="termPH"> ---- $Spaces </div>
-"@
-            $InnerProcPrint10 = @"
-            <div> $($DeviceProperties.Processor[0].Name) </div>
-"@
-            #-----------------#
-            #------Cores------#
-            $spaces = Get-Spacing -MaxLength 5 -MinLength (($DeviceProperties.Processor[0].NumberOfCores).Length)
-            $InnerProcPrint03 = @"
-            <div class="termPH"> Cores </div>
-"@
-            $InnerProcPrint07 = @"
-            <div class="termPH"> ----- </div>
-"@
-            $InnerProcPrint11 = @"
-            <div> $($DeviceProperties.Processor[0].NumberOfCores) $Spaces </div>
-"@
-            #-----------------#
-            #-----Logical-----#
-            $InnerProcPrint04 = @"
-            <div class="termPH"> Logical Cores </div>
-"@
-            $InnerProcPrint08 = @"
-        <div class="termPH"> ------------- </div>
-"@
-            $InnerProcPrint12 = @"
-            <div> $($DeviceProperties.Processor[0].NumberOfLogicalCores) </div>
-"@
-            #-----------------#
-            $Print06 = @"
-        <div class="inTermFlex">
+
+                #-----------------#
+                $Print05 = @"
 $InnerProcPrint01
 $InnerProcPrint02
 $InnerProcPrint03
 $InnerProcPrint04
-        </div>
-        <div class="inTermFlex">
-$InnerProcPrint05
-$InnerProcPrint06
-$InnerProcPrint07
-$InnerProcPrint08
-        </div>
-        <div class="inTermFlex">
-$InnerProcPrint09
-$InnerProcPrint10
-$InnerProcPrint11
-$InnerProcPrint12
-        </div>
-        <div>&nbsp</div>
+            <div>&nbsp</div>
 "@
             #endregion
 
             #region Networking
-            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.NetworkInfo.Description).Length - 1) -MinLength 15
-            #-----Adapter-----#
-            $InnerNetPrint01 = @"
-            <div class="termPH"> Network Adapter $Spaces </div>
+
+                #-----Adapter-----#
+                $Spaces = Get-Spacing -Specified 1
+                $InnerNetPrint01 = @"
+            <div> NetworkAdapter $Spaces : $($DeviceProperties.NetworkInfo.Description)</div>
 "@
-            $InnerNetPrint05 = @"
-            <div class="termPH"> --------------- $Spaces </div>
+
+                #-----------------#
+                #-------DHCP------#
+                $Spaces = Get-Spacing -Specified 11
+                $InnerNetPrint02 = @"
+            <div> DHCP $Spaces : $($DeviceProperties.NetworkInfo.DHCPEnabled) </div>
 "@
-            $InnerNetPrint09 = @"
-            <div> $($DeviceProperties.NetworkInfo.Description) </div>
+
+                #-----------------#
+                #----IPAddress----#
+                $Spaces = Get-Spacing -Specified 6
+                $InnerNetPrint03 = @"
+            <div> IPAddress $Spaces : $($DeviceProperties.NetworkInfo.IPAddress) </div>
 "@
-            #-----------------#
-            #-------DHCP------#
-            $InnerNetPrint02 = @"
-            <div class="termPH"> DHCP </div>
+
+                #-----------------#
+                #-------MAC-------#
+                $Spaces = Get-Spacing -Specified 12
+                $InnerNetPrint04 = @"
+            <div> MAC $Spaces : $($DeviceProperties.NetworkInfo.MACAddress) </div>
 "@
-            $InnerNetPrint06 = @"
-            <div class="termPH"> ---- </div>
-"@
-            $InnerNetPrint10 = @"
-            <div> $($DeviceProperties.NetworkInfo.DHCPEnabled) </div>
-"@
-            #-----------------#
-            #----IPAddress----#
-            $Spaces = Get-Spacing -MaxLength (($DeviceProperties.NetworkInfo.IPAddress).Length - 1) -MinLength 9
-            $InnerNetPrint03 = @"
-            <div class="termPH"> IPAddress $Spaces </div>
-"@
-            $InnerNetPrint07 = @"
-            <div class="termPH"> --------- $spaces </div>
-"@
-            $InnerNetPrint11 = @"
-            <div> $($DeviceProperties.NetworkInfo.IPAddress) </div>
-"@
-            #-----------------#
-            #-------MAC-------#
-            $InnerNetPrint04 = @"
-            <div class="termPH"> MAC </div>
-"@
-            $InnerNetPrint08 = @"
-            <div class="termPH"> --- </div>
-"@
-            $InnerNetPrint12 = @"
-            <div> $($DeviceProperties.NetworkInfo.MACAddress) </div>
-"@
-            #-----------------#
-            $Print07 = @"
-        <div class="inTermFlex">
+
+                #-----------------#
+                $Print06 = @"
 $InnerNetPrint01
 $InnerNetPrint02
 $InnerNetPrint03
 $InnerNetPrint04
-        </div>
-        <div class="inTermFlex">
-$InnerNetPrint05
-$InnerNetPrint06
-$InnerNetPrint07
-$innerNetPrint08
-        </div>
-        <div class="inTermFlex">
-$InnerNetPrint09
-$InnerNetPrint10
-$InnerNetPrint11
-$InnerNetPrint12
-        </div>
 "@
             #endregion
 
@@ -484,7 +386,6 @@ $InnerNetPrint12
             $PieceTogether.Add($Print04) | Out-Null
             $PieceTogether.Add($Print05) | Out-Null
             $PieceTogether.Add($Print06) | Out-Null
-            $PieceTogether.Add($Print07) | Out-Null
 
             return $PieceTogether
         }
