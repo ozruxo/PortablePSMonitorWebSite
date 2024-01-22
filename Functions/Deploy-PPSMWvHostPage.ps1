@@ -171,7 +171,7 @@ function Deploy-PPSMWvHostPage {
                     foreach ($DML in $DontMatchListing){
                         
                         # Set variable for change
-                        $ReallyNotMach = $true
+                        $ReallyNotMatch = $true
 
                         # Check the VM's against noAccess to correctly display if the VM is pingable
                         foreach($NoAccessFile in $NoAccessFiles){
