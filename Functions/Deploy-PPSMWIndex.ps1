@@ -102,12 +102,17 @@ function Deploy-PPSMWIndex {
 
                 $RNum        = Get-Random (4..6)
                 $DeviceColor = "Green$RNum"
-                $Message     = "Pingable IP"
+                $Message     = "Fully available"
             }
-            elseif($Device.Status -eq 'NotAccessible'){
+            elseif($Device.Status -eq 'NotAccessible' -and $Device.Pingable -eq 'Yes'){
+            
+                $DeviceColor = 'Gold'
+                $Message     = 'PS not working'
+            }
+            elseif($Device.Status -eq 'NotAccessible' -and $Device.Pingable -eq 'No'){
             
                 $DeviceColor = 'Red'
-                $Message     = 'Not Accessible'
+                $Message     = 'Not Pingable'
             }
             else {
                 
@@ -116,7 +121,7 @@ function Deploy-PPSMWIndex {
             }
 
             if ($Permission){
-                
+            
                 if ($Device.Status -eq 'NotAccessible'){
                 
                 $Print = @"
