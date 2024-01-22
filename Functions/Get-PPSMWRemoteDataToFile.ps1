@@ -68,7 +68,14 @@ function Get-PPSMWRemoteDataToFile {
 
             $PingResult   = ping $Device -n 1
             $PingReceived = $PingResult[5].Split(',')[1]
-
+            if($PingResult -like "Ping request could not find host*"){
+                
+                $IPAddress = 'false'
+            }
+            else{
+            
+                $IPAddress = $PingResult[4].Split(" ")[-1].replace(':','')
+            }
             if ($PingReceived -match ' Received = 1'){
                 
                 $Connection = $true
@@ -77,7 +84,7 @@ function Get-PPSMWRemoteDataToFile {
                 
                 $Connection = $false
             }
-            return $Connection
+            return $Connection, $IPAddress
         }
 
         $SendFunction = {function Get-AllInfo {
@@ -355,12 +362,12 @@ function Get-PPSMWRemoteDataToFile {
 
             if ($Access){
             
-                $Available = Confirm-Connection -Device $DeviceString
+                $Available,$IPAddress = Confirm-Connection -Device $DeviceString
 
                 # Start Jobs
                 If ($Available){
                 
-                    Start-Job -Name $DeviceString -ArgumentList $DeviceString -InitializationScript $SendFunction -ScriptBlock {
+                    Start-Job -Name "$DeviceString;$IPAddress" -ArgumentList $DeviceString -InitializationScript $SendFunction -ScriptBlock {
                     
                         # Variable
                         $DeviceString = $args[0]
@@ -375,16 +382,17 @@ function Get-PPSMWRemoteDataToFile {
                         Name     = $DeviceString
                         Status   = "NotAccessible"
                         PingOnly = 'No'
+                        Pingable = 'No'
+                        IP       = "$IPAddress"
                     }
 
                     Set-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
 
                 }
-
             }
             else{
 
-                $Available = Confirm-Connection -Device $DeviceString
+                $Available,$IPAddress = Confirm-Connection -Device $DeviceString
 
                 # Create file for devices
                 if ($Available -eq $true){
@@ -394,6 +402,8 @@ function Get-PPSMWRemoteDataToFile {
                         Name     = $DeviceString
                         Status   = "Online"
                         PingOnly = 'Yes'
+                        Pingable = 'Yes'
+                        IP       = "$IPAddress"
                     }
 
                     Set-Content -Value ($AccessPing | ConvertTo-Json) -Path "$PingFolderPath\$DeviceString.json"
@@ -406,6 +416,8 @@ function Get-PPSMWRemoteDataToFile {
                         Name     = $DeviceString
                         Status   = "Offline"
                         PingOnly = 'Yes'
+                        Pingable = 'No'
+                        IP       = "$IPAddress"
                     }
 
                     Set-Content -Value ($NoAccessNoPing | ConvertTo-Json) -Path "$NoAccessFolderPath\$DeviceString.json"
@@ -429,17 +441,19 @@ function Get-PPSMWRemoteDataToFile {
                         Write-Verbose "No access for $($Job.Name)"
                         $NoAccessValue = [PScustomObject]@{
                         
-                            Name     = $Job.Name
+                            Name     = ($Job.Name).split(';')[0]
                             Status   = "NotAccessible"
                             PingOnly = 'No'
+                            Pingable = 'Yes'
+                            IP       = ($Job.Name).split(';')[1]
                         }
-                        Set-Content -Value ($NoAccessValue | ConvertTo-Json) -Path "$NoAccessFolderPath\$($Job.Name).json"
+                        Set-Content -Value ($NoAccessValue | ConvertTo-Json) -Path "$NoAccessFolderPath\$(($Job.Name).Split(';')[0]).json"
                     }
                     else{
                         
                         $ParseData = $ReceivedJob | ConvertFrom-Json 
                         Write-Verbose "Writing Data for $($Job.Name)"
-                        Set-Content -Value $ReceivedJob -Path "$ReferenceDataPath\$($ParseData.DeviceType)\$($Job.Name).json"
+                        Set-Content -Value $ReceivedJob -Path "$ReferenceDataPath\$($ParseData.DeviceType)\$(($Job.Name).Split(';')[0]).json"
                     }
                 }
                 # Remove successful job
@@ -451,7 +465,7 @@ function Get-PPSMWRemoteDataToFile {
                 # Remove failed job
                 elseif ($Job.State -eq 'Failed' -and $Job.HasMoreData -eq 'False'){
 
-                    Write-Verbose "$($Job.Name) failed with no data"
+                    Write-Verbose "$(($Job.Name).Split(';')[0]) failed with no data"
                     Remove-Job -InstanceID $Job.InstanceId
                 }
                 # Print verbose on unknown job status
@@ -471,7 +485,7 @@ function Get-PPSMWRemoteDataToFile {
             }
             Start-Sleep -Milliseconds 500
         }until($Jobs.count -eq 0)
-
+        
     #endregion
 
 }
