@@ -70,23 +70,24 @@ function Deploy-PPSMWvHostPage {
             )
 
             # Variables
-            $AllVMs        = [System.Collections.ArrayList]::New()
-            $AllvHosts     = [System.Collections.ArrayList]::New()
-            $PieceTogether = [System.Collections.ArrayList]::New()
-            $IPsMatch      = [System.Collections.ArrayList]::New()
-            $IPsDontMatch  = [System.Collections.ArrayList]::New()
-            $ReviewDevices = [System.Collections.ArrayList]::New()
-            $AllvHostFiles = Get-ChildItem -Path $PathToFiles
-            $VMs           = Get-ChildItem -Path $PathToVMs
-            $OnlineImage   = 'azure-vms-icon-2048x1891.png'
-            $OfflineImage  = 'x.png'
+            $AllVMs           = [System.Collections.ArrayList]::New()
+            $AllvHosts        = [System.Collections.ArrayList]::New()
+            $PieceTogether    = [System.Collections.ArrayList]::New()
+            $IPsMatch         = [System.Collections.ArrayList]::New()
+            $IPsDontMatch     = [System.Collections.ArrayList]::New()
+            $ReviewDevices    = [System.Collections.ArrayList]::New()
+            $AllvHostFiles    = Get-ChildItem -Path $PathToFiles
+            $VMs              = Get-ChildItem -Path $PathToVMs
+            $NoAccessFiles    = Get-ChildItem -Path "$RootDirectoryPath\referenceData\noAccess"
+            $OnlineImage      = 'azure-vms-icon-2048x1891.png'
+            $OfflineImage     = 'x.png'
 
             # Create website refernce data
             foreach($vHost in $AllvHostFiles){
 
                 # Reset variable
-                $IPsMatch      = [System.Collections.ArrayList]::New()
-                $IPsDontMatch  = [System.Collections.ArrayList]::New()
+                $IPsMatch     = [System.Collections.ArrayList]::New()
+                $IPsDontMatch = [System.Collections.ArrayList]::New()
 
                 # Get deatils from device
                 $DeviceProperties = Get-Content -Path $vHost.FullName | ConvertFrom-Json
@@ -98,8 +99,8 @@ function Deploy-PPSMWvHostPage {
                 }
                 else {
 
-                    $vDiskStatus = 'baddisk'
-                    $ReviewDevices.Add("$vHostName") | Out-Null
+                    $vDiskStatus   = 'baddisk'
+                    $ReviewDevices.Add("$vHostName;$vHostName") | Out-Null
                 }
 
                 $vHostCustomObject = [PSCustomObject]@{
@@ -169,33 +170,82 @@ function Deploy-PPSMWvHostPage {
 
                     foreach ($DML in $DontMatchListing){
                         
-                        # If Additional IP's don't match
-                        $VMCustomObject = [PSCustomObject]@{
-                            Name       = $DML
-                            Status     = 'offline'
-                            DiskPerc   = 'N/A'
-                            Usercount  = 'N/A'
-                            Access     = 'noaccess'
-                            DiskStatus = 'baddisk'
-                            vHost      = $vHostName
+                        # Set variable for change
+                        $ReallyNotMach = $true
+
+                        # Check the VM's against noAccess to correctly display if the VM is pingable
+                        foreach($NoAccessFile in $NoAccessFiles){
+                        
+                            $NAF = Get-Content $NoAccessFile.FullName | ConvertFrom-Json
+                            if($NAF.IP -eq $DML){
+                            
+                                if($NAF.Pingable -eq "Yes"){
+                                
+                                    $VMCustomObject = [PSCustomObject]@{
+                                        Name       = $DML
+                                        Status     = 'online'
+                                        DiskPerc   = 'N/A'
+                                        Usercount  = 'N/A'
+                                        Access     = 'noaccess'
+                                        DiskStatus = 'baddisk'
+                                        vHost      = $vHostName
+                                    }
+                                    $AllVMs.Add($VMCustomObject) | Out-Null
+                                    $ReallyNotMatch = $false
+                                    continue
+                                }
+                                else{
+                                
+                                    $VMCustomObject = [PSCustomObject]@{
+                                        Name       = $DML
+                                        Status     = 'offline'
+                                        DiskPerc   = 'N/A'
+                                        Usercount  = 'N/A'
+                                        Access     = 'noaccess'
+                                        DiskStatus = 'baddisk'
+                                        vHost      = $vHostName
+                                    }
+                                    $AllVMs.Add($VMCustomObject) | Out-Null
+                                    $ReallyNotMatch = $false
+                                    continue
+                                }
+                            }
+                            else{
+                            
+                                # Don't do anything on no match
+                            }
                         }
-                        $AllVMs.Add($VMCustomObject) | Out-Null
+
+                        if ($ReallyNotMatch -eq $true){
+                            
+                            # If Additional IP's don't match
+                            $VMCustomObject = [PSCustomObject]@{
+                                Name       = $DML
+                                Status     = 'offline'
+                                DiskPerc   = 'N/A'
+                                Usercount  = 'N/A'
+                                Access     = 'noaccess'
+                                DiskStatus = 'baddisk'
+                                vHost      = $vHostName
+                            }
+                            $AllVMs.Add($VMCustomObject) | Out-Null
+                        }
                     }
                 }
-
+                
                 # Create list of VMs to print
                 foreach ($IPM in $IPsMatch){
-    
+
                     if ([int]$IPM.OSDiskPerc -ge 15){
-    
+
                         $DiskStatus = 'gooddisk'
                     }
                     else {
-    
-                        $DiskStatus = 'baddisk'
-                        $ReviewDevices.Add("$($IPM.Name)") | Out-Null
+
+                        $DiskStatus    = 'baddisk'
+                        $ReviewDevices.Add("$($IPM.Name);$vHostName") | Out-Null
                     }
-    
+
                     $VMCustomObject = [PSCustomObject]@{
                         Name       = $IPM.Name
                         Status     = 'online'
@@ -319,8 +369,6 @@ function Deploy-PPSMWvHostPage {
                         $PieceTogether.Add($ReviewD) | Out-Null
                     }
                 }
-                $PieceTogether.Add($vHostReview) | Out-Null
-
                 $PrintMidSection03 = @"
                 </div>
             </div>
