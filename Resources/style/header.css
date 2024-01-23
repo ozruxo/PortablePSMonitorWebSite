@@ -29,3 +29,7 @@
 	color: #c3dbd4;
 	text-decoration: none;
 }
+
+.hLink:hover {
+	color: #FFFFFF;
+}
