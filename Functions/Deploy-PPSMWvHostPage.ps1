@@ -323,7 +323,7 @@ function Deploy-PPSMWvHostPage {
                         </div>
 "@
                         $PieceTogether.Add($vHostVM01) | Out-Null
-                        if ($AVM.Status -eq 'offline'){
+                        if ($AVM.Access -eq 'noaccess'){
                         
                             $vHostVM02 = @"
                         <div class="VName"><a class="vmLink" href="error/404.html">$($AVM.Name)</a></div>
