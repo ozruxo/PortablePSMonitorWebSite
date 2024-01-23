@@ -51,8 +51,8 @@
 }
 
 @keyframes fade {
-	0%,100%{background-color: rgb(65, 204, 81, .8)}
-	50%{background-color: rgb(65, 204, 81, .4)}
+	0%,100%{background-color: rgb(65, 204, 81, .6)}
+	50%{background-color: rgb(65, 204, 81, .2)}
 }
 
 .deviceGreen4 {
