@@ -11,9 +11,9 @@ Update path in module file (first line; psm1 extension) to the path you are plac
 
 ### Example Command
 
-Invoke-PPSMWOrchestration `  
--RootDirectoryPath "$env:USERPROFILE\Desktop\PPSMW" `  
--SourceFiles "$env:USERPROFILE\Desktop\PortablePSMonitorWebSite" `   
+Invoke-PPSMWOrchestration  
+-RootDirectoryPath "$env:USERPROFILE\Desktop\PPSMW"  
+-SourceFiles "$env:USERPROFILE\Desktop\PortablePSMonitorWebSite"   
 -Devices (Get-Content "$env:USERPROFILE\Desktop\AllComputers.txt")  
 
 > [!NOTE]
