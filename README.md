@@ -57,10 +57,10 @@ When selecting the imgaes on the virtual host page you will see very brief input
 ![vm](https://github.com/ozruxo/PortablePSMonitorWebSite/blob/main/exampleimages/vm.png)
 
 > [!NOTE]
-> You may have noticed 3 ellipses. First is to indicate the computer is ping able. Second is to indicate Access to the system. Third is to indicate the disk status of being greater that 15%.
+> You may have noticed 3 ellipses. First is to indicate the computer is ping able. Second is to indicate Access to the system. Third is to indicate the disk status of being greater that 15%. Green good. Red bad.
 
 > [!Note]
-> If you see a combination of 🟢 🔴 🔴. The computer is pingable, but PowerShell is not able to reach the system. When applicable, reboot the system or spend a bunch of time trouble shooting why ps session is not working 🙂.
+> If you see a combination of 🟢 🔴 🔴. The computer is pingable, but PowerShell is not able to create a session.
 
 ### Single page
 
