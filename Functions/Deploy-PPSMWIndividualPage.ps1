@@ -148,8 +148,8 @@ function Deploy-PPSMWIndividualPage {
             <div>&nbsp</div>
             $RAMPrint
             <div>&nbsp</div>
-            <div class="termPH"> OSDiskUsed </div>
-            <div class="termPH"> ---------- </div>
+            <div class="termPH"> OSDiskAvailable </div>
+            <div class="termPH"> --------------- </div>
             <div> $($DeviceProperties.OSDiskPerc)% </div>
             <div>&nbsp</div>
 "@
