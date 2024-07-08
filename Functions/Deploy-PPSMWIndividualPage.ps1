@@ -128,7 +128,7 @@ function Deploy-PPSMWIndividualPage {
 
             #region Hostname, RAM percentage and OS Disk percentage
             
-                if($DeviceProperties.DeviceType -eq 'vHost'){
+                if($DeviceProperties.DeviceType -eq 'vHost'  -or $DeviceProperties.DeviceType -eq 'nonVM'){
                 
                     $RAMPrint = @"
             <div> RAM Avilable : $($DeviceProperties.RAMGB)GB </div>
